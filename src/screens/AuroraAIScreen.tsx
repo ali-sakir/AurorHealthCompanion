@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-
+import React, { useState, useRef, useEffect } from "react";
+import * as Speech from "expo-speech";
 import {
   View,
   Text,
@@ -33,6 +33,22 @@ export default function AuroraAIScreen() {
       sender: "ai",
     },
   ]);
+
+  useEffect(() => {
+    Speech.speak(
+      "Hello. I am Aurora, your health companion."
+    );
+  }, []);
+
+  const speakResponse = (
+    text: string
+  ) => {
+    Speech.speak(text, {
+      language: "en-US",
+      pitch: 1,
+      rate: 1,
+    });
+  };
 
   const generateResponse = async (text: string): Promise<string> => {
     const lower = text.toLowerCase();
@@ -676,7 +692,11 @@ ${advice}
       sender: "user",
     };
 
-    const aiResponse = await generateResponse(input);
+    //const aiResponse = await generateResponse(input);
+    const aiResponse =
+      await generateResponse(input);
+
+    speakResponse(aiResponse);
 
     const aiMessage: Message = {
       id: (Date.now() + 1).toString(),
@@ -791,10 +811,18 @@ ${advice}
 
             <TouchableOpacity
               style={styles.voiceBtn}
+              onPress={() =>
+                Speech.speak(
+                  "Hello, I am Aurora. Voice mode is ready."
+                )
+              }
             >
-              <Text style={styles.icon}>
-                🎤
-              </Text>
+              <MaterialCommunityIcons
+                name="microphone"
+                size={30}
+                color="#fff"
+                style={styles.icon}
+              />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -938,3 +966,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 });
+import { MaterialCommunityIcons } from '@expo/vector-icons';

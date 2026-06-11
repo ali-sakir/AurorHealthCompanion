@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 import {
   View,
@@ -17,9 +18,11 @@ export default function NutritionScreen() {
 
   const goal = 2000;
 
-  useEffect(() => {
-    loadNutrition();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadNutrition();
+    }, [])
+  );
 
   useEffect(() => {
     saveNutrition();
@@ -37,14 +40,27 @@ export default function NutritionScreen() {
   };
 
   const loadNutrition = async () => {
-    const data = await AsyncStorage.getItem("nutrition");
+
+    const data =
+      await AsyncStorage.getItem(
+        "nutrition"
+      );
 
     if (data) {
-      const parsed = JSON.parse(data);
+      const parsed =
+        JSON.parse(data);
 
-      setBreakfast(parsed.breakfast || "");
-      setLunch(parsed.lunch || "");
-      setDinner(parsed.dinner || "");
+      setBreakfast(
+        parsed.breakfast || ""
+      );
+
+      setLunch(
+        parsed.lunch || ""
+      );
+
+      setDinner(
+        parsed.dinner || ""
+      );
     }
   };
 
@@ -221,39 +237,39 @@ const styles = StyleSheet.create({
   },
 
   input: {
-  backgroundColor: "#fff",
-  borderRadius: 15,
-  paddingHorizontal: 20,
-  paddingVertical: 15,
-  marginBottom: 15,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    marginBottom: 15,
 
-  borderWidth: 1,
-  borderColor: "#E5E7EB",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
 
-  elevation: 0,
+    elevation: 0,
 
-  shadowColor: "transparent",
-  shadowOffset: {
-    width: 0,
-    height: 0,
+    shadowColor: "transparent",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0,
+    shadowRadius: 0,
   },
-  shadowOpacity: 0,
-  shadowRadius: 0,
-},
 
   summaryCard: {
-  backgroundColor: "#fff",
-  padding: 20,
-  borderRadius: 20,
-  marginTop: 15,
-  marginBottom: 15,
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 20,
+    marginTop: 15,
+    marginBottom: 15,
 
-  elevation: 3,
+    elevation: 3,
 
-  shadowColor: "#000",
-  shadowOpacity: 0.05,
-  shadowRadius: 10,
-},
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+  },
 
   summaryTitle: {
     fontSize: 20,

@@ -1,6 +1,7 @@
 import React, {
   useState,
   useEffect,
+  useCallback,
 } from "react";
 
 import {
@@ -11,7 +12,9 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
-
+import {
+  useFocusEffect
+} from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Habit {
@@ -43,9 +46,11 @@ export default function HabitsScreen() {
       },
     ]);
 
-  useEffect(() => {
+ useFocusEffect(
+  useCallback(() => {
     loadHabits();
-  }, []);
+  }, [])
+);
 
   useEffect(() => {
     saveHabits();

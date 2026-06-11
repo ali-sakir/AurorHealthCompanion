@@ -22,6 +22,7 @@ interface Message {
 }
 
 export default function AuroraAIScreen() {
+
   const [input, setInput] = useState("");
   const flatListRef = useRef<FlatList>(null);
 
@@ -33,7 +34,640 @@ export default function AuroraAIScreen() {
     },
   ]);
 
-  const sendMessage = () => {
+  const generateResponse = async (text: string): Promise<string> => {
+    const lower = text.toLowerCase();
+    const calorieMatch = lower.match(/(\d+)/);
+    const sleepMatch = lower.match(/(\d+(\.\d+)?)/);
+
+
+
+    const waterMatch =
+      lower.match(/(\d+)\s*ml/);
+
+    if (
+      waterMatch &&
+      lower.includes("water")
+    ) {
+      const ml = Number(
+        waterMatch[1]
+      );
+
+      const glasses =
+        Math.round(ml / 250);
+
+      const current =
+        await AsyncStorage.getItem(
+          "waterCount"
+        );
+
+      const updated =
+        Number(current || 0) +
+        glasses;
+
+      await AsyncStorage.setItem(
+        "waterCount",
+        updated.toString()
+      );
+
+      return `💧 Added ${ml}ml water (${glasses} glasses) to your hydration tracker.`;
+    }
+
+
+    if (
+      sleepMatch &&
+      (
+        lower.includes("sleep") ||
+        lower.includes("slept")
+      )
+    ) {
+      const hours =
+        Number(sleepMatch[1]);
+
+      await AsyncStorage.setItem(
+        "sleepHours",
+        hours.toString()
+      );
+
+      const historyData =
+        await AsyncStorage.getItem(
+          "sleepHistory"
+        );
+
+      const history =
+        historyData
+          ? JSON.parse(historyData)
+          : [];
+
+      const updatedHistory = [
+        ...history,
+        hours,
+      ].slice(-7);
+
+      await AsyncStorage.setItem(
+        "sleepHistory",
+        JSON.stringify(
+          updatedHistory
+        )
+      );
+
+      return `🌙 Logged ${hours} hours of sleep successfully.`;
+    }
+
+
+    if (
+      calorieMatch &&
+      (
+        lower.includes("breakfast") ||
+        lower.includes("lunch") ||
+        lower.includes("dinner")
+      )
+    ) {
+      const calories = calorieMatch[1];
+
+      const data = await AsyncStorage.getItem("nutrition");
+
+      const nutrition = data
+        ? JSON.parse(data)
+        : {
+          breakfast: "",
+          lunch: "",
+          dinner: "",
+        };
+
+      if (lower.includes("breakfast")) {
+        nutrition.breakfast =
+          (
+            Number(
+              nutrition.breakfast || 0
+            ) +
+            Number(calories)
+          ).toString();
+      }
+
+      if (lower.includes("lunch")) {
+        nutrition.lunch =
+          (
+            Number(
+              nutrition.lunch || 0
+            ) +
+            Number(calories)
+          ).toString();
+      }
+
+
+      if (lower.includes("dinner")) {
+        nutrition.dinner =
+          (
+            Number(
+              nutrition.dinner || 0
+            ) +
+            Number(calories)
+          ).toString();
+      }
+
+      await AsyncStorage.setItem(
+        "nutrition",
+        JSON.stringify(nutrition)
+      );
+
+      return `🍎 Logged ${calories} calories successfully.`;
+    }
+
+
+    const createHabitMatch =
+      lower.match(/add habit (.+)/);
+
+    if (createHabitMatch) {
+      const habitName =
+        createHabitMatch[1].trim();
+
+      const savedHabits =
+        await AsyncStorage.getItem(
+          "habits"
+        );
+
+      const habits = savedHabits
+        ? JSON.parse(savedHabits)
+        : [];
+
+      habits.push({
+        id: Date.now(),
+        name: habitName,
+        completed: false,
+      });
+
+      await AsyncStorage.setItem(
+        "habits",
+        JSON.stringify(habits)
+      );
+
+      return `📋 Added habit: ${habitName}`;
+    }
+
+    const completeHabitMatch =
+      lower.match(/complete habit (.+)/);
+
+    if (completeHabitMatch) {
+      const habitName =
+        completeHabitMatch[1]
+          .trim()
+          .toLowerCase();
+
+      const savedHabits =
+        await AsyncStorage.getItem(
+          "habits"
+        );
+
+      if (!savedHabits) {
+        return "📋 No habits found.";
+      }
+
+      const habits =
+        JSON.parse(savedHabits);
+
+      const updatedHabits =
+        habits.map((habit: any) =>
+          habit.name
+            .toLowerCase()
+            .includes(habitName)
+            ? {
+              ...habit,
+              completed: true,
+            }
+            : habit
+        );
+
+      await AsyncStorage.setItem(
+        "habits",
+        JSON.stringify(
+          updatedHabits
+        )
+      );
+
+      return `✅ Habit completed: ${habitName}`;
+    }
+
+
+
+    //     if (
+    //       lower.includes("health advice") ||
+    //       lower.includes("give me advice") ||
+    //       lower.includes("health report") ||
+    //       lower.includes("health summary")
+    //     ) {
+    //       const profileData =
+    //         await AsyncStorage.getItem(
+    //           "profile"
+    //         );
+
+    //       const waterData =
+    //         await AsyncStorage.getItem(
+    //           "waterCount"
+    //         );
+
+    //       const sleepData =
+    //         await AsyncStorage.getItem(
+    //           "sleepHours"
+    //         );
+
+    //       const nutritionData =
+    //         await AsyncStorage.getItem(
+    //           "nutrition"
+    //         );
+
+    //       const habitsData =
+    //         await AsyncStorage.getItem(
+    //           "habits"
+    //         );
+
+    //       let name = "User";
+    //       let bmi = "0";
+    //       let waterGoal = 8;
+    //       let sleepGoal = 8;
+    //       let calorieGoal = 2000;
+
+    //       if (profileData) {
+    //         const profile =
+    //           JSON.parse(profileData);
+
+    //         name =
+    //           profile.name || "User";
+
+    //         waterGoal =
+    //           Number(
+    //             profile.waterGoal || 8
+    //           );
+
+    //         sleepGoal =
+    //           Number(
+    //             profile.sleepGoal || 8
+    //           );
+
+    //         calorieGoal =
+    //           Number(
+    //             profile.calorieGoal ||
+    //             2000
+    //           );
+
+    //         if (
+    //           profile.height &&
+    //           profile.weight
+    //         ) {
+    //           bmi = (
+    //             Number(profile.weight) /
+    //             Math.pow(
+    //               Number(profile.height) /
+    //               100,
+    //               2
+    //             )
+    //           ).toFixed(1);
+    //         }
+    //       }
+
+    //       const water =
+    //         Number(waterData || 0);
+
+    //       const sleep =
+    //         Number(sleepData || 0);
+
+    //       let calories = 0;
+
+    //       if (nutritionData) {
+    //         const nutrition =
+    //           JSON.parse(
+    //             nutritionData
+    //           );
+
+    //         calories =
+    //           Number(
+    //             nutrition.breakfast ||
+    //             0
+    //           ) +
+    //           Number(
+    //             nutrition.lunch || 0
+    //           ) +
+    //           Number(
+    //             nutrition.dinner || 0
+    //           );
+    //       }
+
+    //       let completedHabits = 0;
+    //       let totalHabits = 0;
+
+    //       if (habitsData) {
+    //         const habits =
+    //           JSON.parse(habitsData);
+
+    //         totalHabits =
+    //           habits.length;
+
+    //         completedHabits =
+    //           habits.filter(
+    //             (h: any) =>
+    //               h.completed
+    //           ).length;
+    //       }
+
+    //       let advice =
+    //         "Keep up the great work!";
+
+    //       if (water < waterGoal) {
+    //         advice =
+    //           `Drink ${waterGoal - water
+    //           } more glasses of water today.`;
+    //       } else if (
+    //         sleep < sleepGoal
+    //       ) {
+    //         advice =
+    //           `Try to get ${sleepGoal - sleep
+    //           } more hours of sleep.`;
+    //       } else if (
+    //         calories <
+    //         calorieGoal
+    //       ) {
+    //         advice =
+    //           `You still need ${calorieGoal -
+    //           calories
+    //           } calories to reach your daily goal.`;
+    //       }
+
+    //       return `
+    // 👋 ${name}
+
+    // 📊 Today's Health Summary
+
+    // 💧 Water:
+    // ${water}/${waterGoal} glasses
+
+    // 🍎 Calories:
+    // ${calories}/${calorieGoal} kcal
+
+    // 🌙 Sleep:
+    // ${sleep}/${sleepGoal} hours
+
+    // 📋 Habits:
+    // ${completedHabits}/${totalHabits} completed
+
+    // ⚖️ BMI:
+    // ${bmi}
+
+    // 💡 Recommendation:
+    // ${advice}
+    // `;
+    //     }
+
+
+    if (
+      lower.includes("health advice") ||
+      lower.includes("give me advice") ||
+      lower.includes("health report") ||
+      lower.includes("health summary")
+    ) {
+      const profileData =
+        await AsyncStorage.getItem(
+          "profile"
+        );
+
+      const waterData =
+        await AsyncStorage.getItem(
+          "waterCount"
+        );
+
+      const sleepData =
+        await AsyncStorage.getItem(
+          "sleepHours"
+        );
+
+      const nutritionData =
+        await AsyncStorage.getItem(
+          "nutrition"
+        );
+
+      const habitsData =
+        await AsyncStorage.getItem(
+          "habits"
+        );
+
+      let name = "User";
+      let bmi = "0";
+      let waterGoal = 8;
+      let sleepGoal = 8;
+      let calorieGoal = 2000;
+
+      if (profileData) {
+        const profile =
+          JSON.parse(profileData);
+
+        name =
+          profile.name || "User";
+
+        waterGoal =
+          Number(
+            profile.waterGoal || 8
+          );
+
+        sleepGoal =
+          Number(
+            profile.sleepGoal || 8
+          );
+
+        calorieGoal =
+          Number(
+            profile.calorieGoal ||
+            2000
+          );
+
+        if (
+          profile.height &&
+          profile.weight
+        ) {
+          bmi = (
+            Number(profile.weight) /
+            Math.pow(
+              Number(profile.height) /
+              100,
+              2
+            )
+          ).toFixed(1);
+        }
+      }
+
+      const water =
+        Number(waterData || 0);
+
+      const sleep =
+        Number(sleepData || 0);
+
+      let calories = 0;
+
+      if (nutritionData) {
+        const nutrition =
+          JSON.parse(
+            nutritionData
+          );
+
+        calories =
+          Number(
+            nutrition.breakfast ||
+            0
+          ) +
+          Number(
+            nutrition.lunch || 0
+          ) +
+          Number(
+            nutrition.dinner || 0
+          );
+      }
+
+      let completedHabits = 0;
+      let totalHabits = 0;
+
+      if (habitsData) {
+        const habits =
+          JSON.parse(habitsData);
+
+        totalHabits =
+          habits.length;
+
+        completedHabits =
+          habits.filter(
+            (h: any) =>
+              h.completed
+          ).length;
+      }
+
+      let advice =
+        "Keep up the great work!";
+
+      if (water < waterGoal) {
+        advice =
+          `Drink ${waterGoal - water
+          } more glasses of water today.`;
+      } else if (
+        sleep < sleepGoal
+      ) {
+        advice =
+          `Try to get ${sleepGoal - sleep
+          } more hours of sleep.`;
+      } else if (
+        calories <
+        calorieGoal
+      ) {
+        advice =
+          `You still need ${calorieGoal -
+          calories
+          } calories to reach your daily goal.`;
+      }
+
+      const hydrationScore = Math.min(
+        Math.round((water / waterGoal) * 100),
+        100
+      );
+
+      const sleepScore = Math.min(
+        Math.round((sleep / sleepGoal) * 100),
+        100
+      );
+
+      const nutritionScore = Math.min(
+        Math.round(
+          (calories / calorieGoal) * 100
+        ),
+        100
+      );
+
+      const habitsScore =
+        totalHabits > 0
+          ? Math.round(
+            (completedHabits /
+              totalHabits) *
+            100
+          )
+          : 0;
+
+      const overallHealthScore =
+        Math.round(
+          (
+            hydrationScore +
+            sleepScore +
+            nutritionScore +
+            habitsScore
+          ) / 4
+        );
+
+      let healthRating = "";
+
+      if (overallHealthScore >= 90) {
+        healthRating = "🏆 Excellent";
+      } else if (
+        overallHealthScore >= 75
+      ) {
+        healthRating = "💪 Very Good";
+      } else if (
+        overallHealthScore >= 60
+      ) {
+        healthRating = "🙂 Good";
+      } else if (
+        overallHealthScore >= 40
+      ) {
+        healthRating = "⚠️ Needs Improvement";
+      } else {
+        healthRating = "🚨 Poor";
+      }
+
+      const healthBar =
+        "🟩".repeat(
+          Math.floor(
+            overallHealthScore / 10
+          )
+        ) +
+        "⬜".repeat(
+          10 -
+          Math.floor(
+            overallHealthScore / 10
+          )
+        );
+
+      return `
+👋 ${name}
+
+🏆 Health Score:
+${overallHealthScore}/100
+${healthBar}
+
+
+${healthRating}
+
+📊 Today's Health Summary
+
+💧 Hydration:
+${water}/${waterGoal} glasses
+(${hydrationScore}%)
+
+🍎 Nutrition:
+${calories}/${calorieGoal} kcal
+(${nutritionScore}%)
+
+🌙 Sleep:
+${sleep}/${sleepGoal} hours
+(${sleepScore}%)
+
+📋 Habits:
+${completedHabits}/${totalHabits}
+(${habitsScore}%)
+
+⚖️ BMI:
+${bmi}
+
+💡 Recommendation:
+${advice}
+`;
+    }
+
+    return "🤖 I'm Aurora. I can help track hydration, sleep, nutrition and habits.";
+  };
+
+  const sendMessage = async () => {
     if (!input.trim()) return;
 
     const userMessage: Message = {
@@ -42,9 +676,11 @@ export default function AuroraAIScreen() {
       sender: "user",
     };
 
+    const aiResponse = await generateResponse(input);
+
     const aiMessage: Message = {
       id: (Date.now() + 1).toString(),
-      text: generateResponse(input),
+      text: aiResponse,
       sender: "ai",
     };
 
@@ -57,56 +693,7 @@ export default function AuroraAIScreen() {
     setInput("");
   };
 
-  const generateResponse =  (text: string) => {
-    const lower = text.toLowerCase();
 
-    if (
-      lower.includes("water") ||
-      lower.includes("drink")
-    ) {
-      return "💧 Great! I've recorded your hydration activity. Keep drinking water regularly.";
-    }
-
-    if (
-      lower.includes("500ml") &&
-      lower.includes("water")
-    ) {
-      // const current =
-      //   await AsyncStorage.getItem("waterCount");
-
-      // const updated =
-      //   Number(current || 0) + 2;
-
-      // await AsyncStorage.setItem(
-      //   "waterCount",
-      //   updated.toString()
-      // );
-      return "💧 Added 500ml to today's hydration goal.";
-    }
-
-    if (
-      lower.includes("sleep") ||
-      lower.includes("slept")
-    ) {
-      return "🌙 Sleep log updated successfully. Consistent sleep improves recovery and focus.";
-    }
-
-    if (
-      lower.includes("nutrition") ||
-      lower.includes("food") ||
-      lower.includes("calories")
-    ) {
-      return "🥗 Nutrition entry recorded. Keep balancing your meals.";
-    }
-
-    if (
-      lower.includes("habit")
-    ) {
-      return "📋 Habit created successfully. Consistency is key.";
-    }
-
-    return "🤖 I'm Aurora. I can help track hydration, sleep, nutrition and habits.";
-  };
 
   const renderItem = ({
     item,

@@ -1,416 +1,160 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Colors, Radius, Shadow } from "../constants/theme";
+
+const GOAL = 8;
 
 export default function SleepScreen() {
   const [sleepHours, setSleepHours] = useState(8);
   const [history, setHistory] = useState<number[]>([]);
 
-  const goal = 8;
-
-  useFocusEffect(
-  useCallback(() => {
-    loadData();
-  }, [])
-);
-
-  useEffect(() => {
-    AsyncStorage.setItem(
-      "sleepHours",
-      sleepHours.toString()
-    );
-  }, [sleepHours]);
+  useFocusEffect(useCallback(() => { loadData(); }, []));
+  useEffect(() => { AsyncStorage.setItem("sleepHours", sleepHours.toString()); }, [sleepHours]);
 
   const loadData = async () => {
-    const savedHours =
-      await AsyncStorage.getItem(
-        "sleepHours"
-      );
-
-    const savedHistory =
-      await AsyncStorage.getItem(
-        "sleepHistory"
-      );
-
-    if (savedHours) {
-      setSleepHours(Number(savedHours));
-    }
-
-    if (savedHistory) {
-      setHistory(
-        JSON.parse(savedHistory)
-      );
-    }
+    const savedHours = await AsyncStorage.getItem("sleepHours");
+    const savedHistory = await AsyncStorage.getItem("sleepHistory");
+    if (savedHours) setSleepHours(Number(savedHours));
+    if (savedHistory) setHistory(JSON.parse(savedHistory));
   };
 
   const saveTodaySleep = async () => {
-    const updated = [
-      ...history,
-      sleepHours,
-    ].slice(-7);
-
+    const updated = [...history, sleepHours].slice(-7);
     setHistory(updated);
-
-    await AsyncStorage.setItem(
-      "sleepHistory",
-      JSON.stringify(updated)
-    );
+    await AsyncStorage.setItem("sleepHistory", JSON.stringify(updated));
   };
 
   const resetSleep = async () => {
-    setSleepHours(0);
-    setHistory([]);
-
-    await AsyncStorage.removeItem(
-      "sleepHours"
-    );
-
-    await AsyncStorage.removeItem(
-      "sleepHistory"
-    );
+    setSleepHours(0); setHistory([]);
+    await AsyncStorage.removeItem("sleepHours");
+    await AsyncStorage.removeItem("sleepHistory");
   };
 
-  const progress = Math.min(
-    (sleepHours / goal) * 100,
-    100
-  );
+  const progress = Math.min((sleepHours / GOAL) * 100, 100);
+  const score = Math.min(Math.round((sleepHours / GOAL) * 100), 100);
+  const average = history.length > 0 ? (history.reduce((a, b) => a + b, 0) / history.length).toFixed(1) : "0";
 
-  const score = Math.min(
-    Math.round(
-      (sleepHours / goal) * 100
-    ),
-    100
-  );
-
-  const average =
-    history.length > 0
-      ? (
-          history.reduce(
-            (a, b) => a + b,
-            0
-          ) / history.length
-        ).toFixed(1)
-      : "0";
-
-  const getMessage = () => {
-    if (score >= 90)
-      return "😴 Excellent Sleep";
-
-    if (score >= 70)
-      return "😊 Good Sleep";
-
-    if (score >= 50)
-      return "🙂 Fair Sleep";
-
-    return "⚠️ Improve Sleep";
+  const getStatus = () => {
+    if (score >= 90) return { text: "Excellent Sleep 😴", color: Colors.success };
+    if (score >= 70) return { text: "Good Sleep 😊", color: Colors.primary };
+    if (score >= 50) return { text: "Fair Sleep 🙂", color: Colors.warning };
+    return { text: "Improve Sleep ⚠️", color: Colors.danger };
   };
+
+  const status = getStatus();
 
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={
-        false
-      }
-      contentContainerStyle={{
-        paddingBottom: 40,
-      }}
-    >
-      <View style={styles.container}>
-        <View style={styles.hero}>
-          <Text style={styles.heroTitle}>
-            🌙 Sleep Tracker
-          </Text>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
 
-          <Text
-            style={styles.heroSubtitle}
-          >
-            Improve your sleeping
-            habits
-          </Text>
-        </View>
+        <LinearGradient colors={Colors.gradientSleep} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+          <View style={styles.circle1} />
+          <Text style={styles.headerTitle}>🌙 Sleep Tracker</Text>
+          <Text style={styles.headerSub}>Improve your sleeping habits</Text>
+        </LinearGradient>
 
-        <View style={styles.mainCard}>
-          <Text style={styles.goal}>
-            Daily Goal: 8 Hours
-          </Text>
+        <View style={styles.content}>
 
-          <Text style={styles.hours}>
-            {sleepHours} Hours
-          </Text>
+          {/* Main Card */}
+          <View style={[styles.card, Shadow.card]}>
+            <Text style={styles.goalText}>Daily Goal: {GOAL} Hours</Text>
+            <Text style={styles.hoursValue}>{sleepHours} <Text style={styles.hoursUnit}>hrs</Text></Text>
 
-          <View
-            style={styles.progressBg}
-          >
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  width: `${progress}%`,
-                },
-              ]}
-            />
+            <View style={styles.progressBg}>
+              <LinearGradient colors={Colors.gradientSleep} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.progressFill, { width: `${progress}%` }]} />
+            </View>
+            <Text style={styles.progressPercent}>{Math.round(progress)}%</Text>
+
+            <View style={[styles.statusPill, { backgroundColor: status.color + "22" }]}>
+              <Text style={[styles.statusText, { color: status.color }]}>{status.text}</Text>
+            </View>
+            <Text style={styles.scoreText}>Sleep Score: <Text style={{ color: Colors.gradientSleep[0], fontWeight: "800" }}>{score}/100</Text></Text>
           </View>
 
-          <Text
-            style={styles.percent}
-          >
-            {Math.round(progress)}%
-          </Text>
+          {/* Controls */}
+          <View style={[styles.card, Shadow.card]}>
+            <Text style={styles.sectionTitle}>Adjust Sleep Hours</Text>
+            <View style={styles.controlRow}>
+              <TouchableOpacity onPress={() => setSleepHours(Math.max(sleepHours - 1, 0))} activeOpacity={0.85}>
+                <LinearGradient colors={[Colors.warning, "#f59e0b"]} style={styles.controlBtn}>
+                  <Text style={styles.controlBtnText}>- 1 Hour</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <Text style={styles.controlValue}>{sleepHours}h</Text>
+              <TouchableOpacity onPress={() => setSleepHours(sleepHours + 1)} activeOpacity={0.85}>
+                <LinearGradient colors={Colors.gradientSleep} style={styles.controlBtn}>
+                  <Text style={styles.controlBtnText}>+ 1 Hour</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
 
-          <Text style={styles.score}>
-            Sleep Score: {score}/100
-          </Text>
+          {/* Weekly Insights */}
+          <View style={[styles.card, Shadow.card]}>
+            <Text style={styles.sectionTitle}>📊 Weekly Insights</Text>
+            <View style={styles.insightRow}>
+              <View style={styles.insightItem}>
+                <Text style={styles.insightLabel}>7-Day Average</Text>
+                <Text style={styles.insightValue}>{average}<Text style={styles.insightUnit}> hrs</Text></Text>
+              </View>
+              <View style={[styles.insightDivider]} />
+              <View style={styles.insightItem}>
+                <Text style={styles.insightLabel}>Entries Logged</Text>
+                <Text style={styles.insightValue}>{history.length}</Text>
+              </View>
+            </View>
+          </View>
 
-          <Text
-            style={styles.message}
-          >
-            {getMessage()}
-          </Text>
-        </View>
-
-        <View
-          style={styles.insightCard}
-        >
-          <Text
-            style={styles.insightTitle}
-          >
-            📊 Weekly Insights
-          </Text>
-
-          <Text
-            style={styles.insightText}
-          >
-            7-Day Average Sleep
-          </Text>
-
-          <Text
-            style={styles.average}
-          >
-            {average} Hours
-          </Text>
-
-          <Text
-            style={styles.insightText}
-          >
-            Entries Recorded
-          </Text>
-
-          <Text
-            style={styles.average}
-          >
-            {history.length}
-          </Text>
-        </View>
-
-        <View
-          style={styles.buttonRow}
-        >
-          <TouchableOpacity
-            style={styles.minusBtn}
-            onPress={() =>
-              setSleepHours(
-                Math.max(
-                  sleepHours - 1,
-                  0
-                )
-              )
-            }
-          >
-            <Text
-              style={styles.btnText}
-            >
-              -1 Hour
-            </Text>
+          <TouchableOpacity onPress={saveTodaySleep} activeOpacity={0.85}>
+            <LinearGradient colors={Colors.gradientSleep} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.primaryButton, Shadow.button]}>
+              <Text style={styles.primaryButtonText}>Save Today's Sleep</Text>
+            </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.plusBtn}
-            onPress={() =>
-              setSleepHours(
-                sleepHours + 1
-              )
-            }
-          >
-            <Text
-              style={styles.btnText}
-            >
-              +1 Hour
-            </Text>
+          <TouchableOpacity style={styles.resetButton} onPress={resetSleep} activeOpacity={0.85}>
+            <Text style={styles.resetText}>Reset Sleep Data</Text>
           </TouchableOpacity>
+
         </View>
-
-        <TouchableOpacity
-          style={styles.saveBtn}
-          onPress={saveTodaySleep}
-        >
-          <Text
-            style={styles.btnText}
-          >
-            Save Today's Sleep
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.resetBtn}
-          onPress={resetSleep}
-        >
-          <Text
-            style={styles.btnText}
-          >
-            Reset Sleep Data
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: "#F3F4F6",
-  },
-
-  hero: {
-    backgroundColor: "#4F46E5",
-    padding: 25,
-    borderRadius: 25,
-    marginBottom: 20,
-  },
-
-  heroTitle: {
-    color: "#fff",
-    fontSize: 28,
-    fontWeight: "bold",
-  },
-
-  heroSubtitle: {
-    color: "#E0E7FF",
-    marginTop: 5,
-  },
-
-  mainCard: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
-  },
-
-  goal: {
-    textAlign: "center",
-    color: "#666",
-    fontSize: 16,
-  },
-
-  hours: {
-    textAlign: "center",
-    fontSize: 48,
-    fontWeight: "bold",
-    marginVertical: 10,
-  },
-
-  progressBg: {
-    height: 15,
-    backgroundColor: "#E5E7EB",
-    borderRadius: 20,
-    overflow: "hidden",
-  },
-
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#4F46E5",
-  },
-
-  percent: {
-    textAlign: "center",
-    marginTop: 10,
-    fontWeight: "bold",
-    fontSize: 18,
-  },
-
-  score: {
-    textAlign: "center",
-    marginTop: 15,
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-
-  message: {
-    textAlign: "center",
-    marginTop: 10,
-    fontSize: 22,
-  },
-
-  insightCard: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-  },
-
-  insightTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-
-  insightText: {
-    color: "#666",
-    fontSize: 16,
-  },
-
-  average: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-
-  minusBtn: {
-    backgroundColor: "#F59E0B",
-    flex: 1,
-    marginRight: 10,
-    padding: 15,
-    borderRadius: 15,
-  },
-
-  plusBtn: {
-    backgroundColor: "#10B981",
-    flex: 1,
-    marginLeft: 10,
-    padding: 15,
-    borderRadius: 15,
-  },
-
-  saveBtn: {
-    backgroundColor: "#4F46E5",
-    padding: 18,
-    borderRadius: 15,
-    marginBottom: 15,
-  },
-
-  resetBtn: {
-    backgroundColor: "#EF4444",
-    padding: 18,
-    borderRadius: 15,
-  },
-
-  btnText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
+  header: { paddingTop: 30, paddingBottom: 50, paddingHorizontal: 22, overflow: "hidden" },
+  circle1: { position: "absolute", width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(255,255,255,0.08)", top: -40, right: -40 },
+  headerTitle: { color: Colors.textWhite, fontSize: 28, fontWeight: "800" },
+  headerSub: { color: "rgba(255,255,255,0.75)", fontSize: 14, marginTop: 6 },
+  content: { backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, paddingTop: 24, paddingHorizontal: 18 },
+  card: { backgroundColor: Colors.card, borderRadius: Radius.xl, padding: 20, marginBottom: 16 },
+  goalText: { color: Colors.textSecondary, fontSize: 14, textAlign: "center" },
+  hoursValue: { fontSize: 64, fontWeight: "800", color: Colors.gradientSleep[0], textAlign: "center", marginTop: 4 },
+  hoursUnit: { fontSize: 28, color: Colors.textSecondary, fontWeight: "400" },
+  progressBg: { height: 14, backgroundColor: Colors.border, borderRadius: 20, overflow: "hidden", marginTop: 12 },
+  progressFill: { height: "100%", borderRadius: 20 },
+  progressPercent: { textAlign: "center", fontWeight: "700", fontSize: 16, marginTop: 8, color: Colors.textPrimary },
+  statusPill: { paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20, alignSelf: "center", marginTop: 12 },
+  statusText: { fontWeight: "700", fontSize: 16 },
+  scoreText: { textAlign: "center", color: Colors.textSecondary, fontSize: 15, marginTop: 10 },
+  sectionTitle: { fontSize: 17, fontWeight: "700", color: Colors.textPrimary, marginBottom: 16 },
+  controlRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  controlBtn: { borderRadius: Radius.md, paddingVertical: 14, paddingHorizontal: 22 },
+  controlBtnText: { color: Colors.textWhite, fontWeight: "700", fontSize: 15 },
+  controlValue: { fontSize: 36, fontWeight: "800", color: Colors.textPrimary },
+  insightRow: { flexDirection: "row", alignItems: "center" },
+  insightItem: { flex: 1, alignItems: "center" },
+  insightDivider: { width: 1, height: 50, backgroundColor: Colors.border },
+  insightLabel: { color: Colors.textSecondary, fontSize: 13, marginBottom: 6 },
+  insightValue: { fontSize: 36, fontWeight: "800", color: Colors.textPrimary },
+  insightUnit: { fontSize: 16, color: Colors.textSecondary, fontWeight: "400" },
+  primaryButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 12 },
+  primaryButtonText: { color: Colors.textWhite, fontSize: 16, fontWeight: "700" },
+  resetButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", borderWidth: 1.5, borderColor: Colors.danger, backgroundColor: Colors.danger + "11" },
+  resetText: { color: Colors.danger, fontSize: 16, fontWeight: "700" },
 });

@@ -1,380 +1,160 @@
 import React, { useState, useEffect } from "react";
-
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Alert
-} from "react-native";
-
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Colors, Radius, Shadow } from "../constants/theme";
 
 export default function ProfileScreen() {
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
-
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
+  const [waterGoal, setWaterGoal] = useState("8");
+  const [sleepGoal, setSleepGoal] = useState("8");
+  const [calorieGoal, setCalorieGoal] = useState("2000");
 
-  const [waterGoal, setWaterGoal] =
-    useState("8");
-
-  const [sleepGoal, setSleepGoal] =
-    useState("8");
-
-  const [calorieGoal, setCalorieGoal] =
-    useState("2000");
-
-  useEffect(() => {
-    loadProfile();
-  }, []);
+  useEffect(() => { loadProfile(); }, []);
 
   const loadProfile = async () => {
-    const data =
-      await AsyncStorage.getItem(
-        "profile"
-      );
-
+    const data = await AsyncStorage.getItem("profile");
     if (data) {
-      const profile =
-        JSON.parse(data);
-
-      setName(profile.name || "");
-      setAge(profile.age || "");
-      setGender(profile.gender || "");
-
-      setHeight(
-        profile.height || ""
-      );
-
-      setWeight(
-        profile.weight || ""
-      );
-
-      setWaterGoal(
-        profile.waterGoal || "8"
-      );
-
-      setSleepGoal(
-        profile.sleepGoal || "8"
-      );
-
-      setCalorieGoal(
-        profile.calorieGoal ||
-          "2000"
-      );
+      const p = JSON.parse(data);
+      setName(p.name || ""); setAge(p.age || ""); setGender(p.gender || "");
+      setHeight(p.height || ""); setWeight(p.weight || "");
+      setWaterGoal(p.waterGoal || "8"); setSleepGoal(p.sleepGoal || "8"); setCalorieGoal(p.calorieGoal || "2000");
     }
   };
 
   const saveProfile = async () => {
-    await AsyncStorage.setItem(
-      "profile",
-      JSON.stringify({
-        name,
-        age,
-        gender,
-        height,
-        weight,
-        waterGoal,
-        sleepGoal,
-        calorieGoal,
-      })
-    );
-
-    alert("Profile Saved!");
+    await AsyncStorage.setItem("profile", JSON.stringify({ name, age, gender, height, weight, waterGoal, sleepGoal, calorieGoal }));
+    Alert.alert("Saved", "Profile updated successfully!");
   };
 
-    const logout = async () => {
-  await AsyncStorage.removeItem(
-    "token"
-  );
+  const logout = async () => {
+    await AsyncStorage.removeItem("token");
+    Alert.alert("Logged Out", "Restart the app to log in again.");
+  };
 
-  Alert.alert(
-    "Logged Out",
-    "Restart App"
-  );
-};
-
-  const bmi =
-    height && weight
-      ? (
-          Number(weight) /
-          Math.pow(
-            Number(height) / 100,
-            2
-          )
-        ).toFixed(1)
-      : "0";
-
+  const bmi = height && weight ? (Number(weight) / Math.pow(Number(height) / 100, 2)).toFixed(1) : "—";
   const bmiStatus = () => {
-    const value = Number(bmi);
-
-    if (value < 18.5)
-      return "Underweight";
-
-    if (value < 25)
-      return "Normal Weight";
-
-    if (value < 30)
-      return "Overweight";
-
+    const v = Number(bmi);
+    if (isNaN(v)) return "—";
+    if (v < 18.5) return "Underweight";
+    if (v < 25) return "Normal Weight";
+    if (v < 30) return "Overweight";
     return "Obese";
+  };
+  const bmiColor = () => {
+    const v = Number(bmi);
+    if (isNaN(v)) return Colors.textSecondary;
+    if (v < 18.5 || v >= 30) return Colors.danger;
+    if (v < 25) return Colors.success;
+    return Colors.warning;
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={
-        styles.container
-      }
-      showsVerticalScrollIndicator={
-        false
-      }
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          👤 My Profile
-        </Text>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
 
-        <Text
-          style={styles.subtitle}
-        >
-          Personalize your health
-          journey
-        </Text>
-      </View>
+        <LinearGradient colors={Colors.gradientProfile} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+          <View style={styles.circle1} />
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarText}>{name ? name[0].toUpperCase() : "U"}</Text>
+          </View>
+          <Text style={styles.headerName}>{name || "Your Profile"}</Text>
+          <Text style={styles.headerSub}>Personalize your health journey</Text>
+        </LinearGradient>
 
-      <View style={styles.card}>
-        <TextInput
-          style={styles.input}
-          placeholder="Full Name"
-          value={name}
-          onChangeText={setName}
-        />
+        <View style={styles.content}>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Age"
-          keyboardType="numeric"
-          value={age}
-          onChangeText={setAge}
-        />
+          {/* Personal Info */}
+          <View style={[styles.card, Shadow.card]}>
+            <Text style={styles.sectionTitle}>Personal Information</Text>
+            {[
+              { placeholder: "Full Name", value: name, setter: setName },
+              { placeholder: "Age", value: age, setter: setAge, numeric: true },
+              { placeholder: "Gender", value: gender, setter: setGender },
+              { placeholder: "Height (cm)", value: height, setter: setHeight, numeric: true },
+              { placeholder: "Weight (kg)", value: weight, setter: setWeight, numeric: true },
+            ].map((field) => (
+              <TextInput
+                key={field.placeholder}
+                style={styles.input}
+                placeholder={field.placeholder}
+                placeholderTextColor={Colors.textMuted}
+                value={field.value}
+                onChangeText={field.setter}
+                keyboardType={field.numeric ? "numeric" : "default"}
+              />
+            ))}
+          </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Gender"
-          value={gender}
-          onChangeText={setGender}
-        />
+          {/* BMI Card */}
+          <View style={[styles.card, Shadow.card, { alignItems: "center" }]}>
+            <Text style={styles.sectionTitle}>BMI Analysis</Text>
+            <Text style={[styles.bmiValue, { color: bmiColor() }]}>{bmi}</Text>
+            <View style={[styles.bmiPill, { backgroundColor: bmiColor() + "22" }]}>
+              <Text style={[styles.bmiStatus, { color: bmiColor() }]}>{bmiStatus()}</Text>
+            </View>
+          </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Height (cm)"
-          keyboardType="numeric"
-          value={height}
-          onChangeText={setHeight}
-        />
+          {/* Daily Goals */}
+          <View style={[styles.card, Shadow.card]}>
+            <Text style={styles.sectionTitle}>Daily Goals</Text>
+            {[
+              { placeholder: "💧 Water Goal (glasses)", value: waterGoal, setter: setWaterGoal },
+              { placeholder: "🌙 Sleep Goal (hours)", value: sleepGoal, setter: setSleepGoal },
+              { placeholder: "🍎 Calorie Goal (kcal)", value: calorieGoal, setter: setCalorieGoal },
+            ].map((field) => (
+              <TextInput
+                key={field.placeholder}
+                style={styles.input}
+                placeholder={field.placeholder}
+                placeholderTextColor={Colors.textMuted}
+                value={field.value}
+                onChangeText={field.setter}
+                keyboardType="numeric"
+              />
+            ))}
+          </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Weight (kg)"
-          keyboardType="numeric"
-          value={weight}
-          onChangeText={setWeight}
-        />
-      </View>
+          {/* Save Button */}
+          <TouchableOpacity onPress={saveProfile} activeOpacity={0.85}>
+            <LinearGradient colors={Colors.gradientButton} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.primaryButton, Shadow.button]}>
+              <Text style={styles.primaryButtonText}>Save Profile</Text>
+            </LinearGradient>
+          </TouchableOpacity>
 
-      <View style={styles.bmiCard}>
-        <Text
-          style={styles.sectionTitle}
-        >
-          BMI Analysis
-        </Text>
+          {/* Logout */}
+          <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.85}>
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.bmi}>
-          {bmi}
-        </Text>
-
-        <Text
-          style={styles.bmiStatus}
-        >
-          {bmiStatus()}
-        </Text>
-      </View>
-
-      <View style={styles.goalCard}>
-        <Text
-          style={styles.sectionTitle}
-        >
-          Daily Goals
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Water Goal"
-          keyboardType="numeric"
-          value={waterGoal}
-          onChangeText={
-            setWaterGoal
-          }
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Sleep Goal"
-          keyboardType="numeric"
-          value={sleepGoal}
-          onChangeText={
-            setSleepGoal
-          }
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Calorie Goal"
-          keyboardType="numeric"
-          value={calorieGoal}
-          onChangeText={
-            setCalorieGoal
-          }
-        />
-      </View>
-
-      <TouchableOpacity
-        style={styles.saveBtn}
-        onPress={saveProfile}
-      >
-        <Text
-          style={styles.saveText}
-        >
-          Save Profile
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={{
-          backgroundColor: "red",
-          padding: 15,
-          borderRadius: 15,
-          marginTop: 20,
-        }}
-        onPress={logout}
-      >
-        <Text
-          style={{
-            color: "#fff",
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
-        >
-          Logout
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    paddingBottom: 60,
-    backgroundColor:
-      "#F5F7FB",
-  },
-
-  header: {
-    backgroundColor:
-      "#7C3AED",
-    padding: 25,
-    borderRadius: 25,
-    marginBottom: 20,
-  },
-
-  title: {
-    color: "#fff",
-    fontSize: 28,
-    fontWeight: "bold",
-  },
-
-  subtitle: {
-    color: "#EDE9FE",
-    marginTop: 5,
-    fontSize: 15,
-  },
-
-  card: {
-    backgroundColor:
-      "#fff",
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-    elevation: 3,
-  },
-
-  bmiCard: {
-    backgroundColor:
-      "#fff",
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-    alignItems: "center",
-    elevation: 3,
-  },
-
-  goalCard: {
-    backgroundColor:
-      "#fff",
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-    elevation: 3,
-  },
-
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-
-  input: {
-    backgroundColor:
-      "#F9FAFB",
-    borderWidth: 1,
-    borderColor:
-      "#E5E7EB",
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    marginBottom: 15,
-  },
-
-  bmi: {
-    fontSize: 50,
-    fontWeight: "bold",
-    color: "#7C3AED",
-  },
-
-  bmiStatus: {
-    fontSize: 20,
-    marginTop: 5,
-    fontWeight: "600",
-  },
-
-  saveBtn: {
-    backgroundColor:
-      "#7C3AED",
-    padding: 18,
-    borderRadius: 15,
-    marginBottom: 30,
-  },
-
-  saveText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 18,
-  },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
+  header: { paddingTop: 30, paddingBottom: 50, alignItems: "center", overflow: "hidden" },
+  circle1: { position: "absolute", width: 200, height: 200, borderRadius: 100, backgroundColor: "rgba(255,255,255,0.07)", top: -60, right: -40 },
+  avatarCircle: { width: 76, height: 76, borderRadius: 38, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center", marginBottom: 12, borderWidth: 2, borderColor: "rgba(255,255,255,0.4)" },
+  avatarText: { fontSize: 32, fontWeight: "800", color: Colors.textWhite },
+  headerName: { color: Colors.textWhite, fontSize: 22, fontWeight: "700" },
+  headerSub: { color: "rgba(255,255,255,0.6)", fontSize: 14, marginTop: 4 },
+  content: { backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, paddingTop: 24, paddingHorizontal: 18 },
+  card: { backgroundColor: Colors.card, borderRadius: Radius.xl, padding: 20, marginBottom: 16 },
+  sectionTitle: { fontSize: 17, fontWeight: "700", color: Colors.textPrimary, marginBottom: 16 },
+  input: { backgroundColor: Colors.inputBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radius.md, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.textPrimary, marginBottom: 12 },
+  bmiValue: { fontSize: 56, fontWeight: "800", marginBottom: 8 },
+  bmiPill: { paddingHorizontal: 20, paddingVertical: 6, borderRadius: 20 },
+  bmiStatus: { fontSize: 16, fontWeight: "700" },
+  primaryButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 12 },
+  primaryButtonText: { color: Colors.textWhite, fontSize: 17, fontWeight: "700", letterSpacing: 0.5 },
+  logoutButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 12, borderWidth: 1.5, borderColor: Colors.danger, backgroundColor: Colors.danger + "11" },
+  logoutText: { color: Colors.danger, fontSize: 16, fontWeight: "700" },
 });

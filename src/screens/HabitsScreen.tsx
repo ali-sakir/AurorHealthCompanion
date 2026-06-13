@@ -1,404 +1,130 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
-
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
-import {
-  useFocusEffect
-} from "@react-navigation/native";
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Colors, Radius, Shadow } from "../constants/theme";
 
-interface Habit {
-  id: number;
-  name: string;
-  completed: boolean;
-}
+interface Habit { id: number; name: string; completed: boolean; }
 
 export default function HabitsScreen() {
-  const [habitText, setHabitText] =
-    useState("");
+  const [habitText, setHabitText] = useState("");
+  const [habits, setHabits] = useState<Habit[]>([
+    { id: 1, name: "Reading", completed: false },
+    { id: 2, name: "Meditation", completed: false },
+    { id: 3, name: "Walking", completed: false },
+  ]);
 
-  const [habits, setHabits] =
-    useState<Habit[]>([
-      {
-        id: 1,
-        name: "Reading",
-        completed: false,
-      },
-      {
-        id: 2,
-        name: "Meditation",
-        completed: false,
-      },
-      {
-        id: 3,
-        name: "Walking",
-        completed: false,
-      },
-    ]);
+  useFocusEffect(useCallback(() => { loadHabits(); }, []));
+  useEffect(() => { saveHabits(); }, [habits]);
 
- useFocusEffect(
-  useCallback(() => {
-    loadHabits();
-  }, [])
-);
-
-  useEffect(() => {
-    saveHabits();
-  }, [habits]);
-
-  const saveHabits = async () => {
-    await AsyncStorage.setItem(
-      "habits",
-      JSON.stringify(habits)
-    );
-  };
-
+  const saveHabits = async () => { await AsyncStorage.setItem("habits", JSON.stringify(habits)); };
   const loadHabits = async () => {
-    const saved =
-      await AsyncStorage.getItem(
-        "habits"
-      );
-
-    if (saved) {
-      setHabits(JSON.parse(saved));
-    }
+    const saved = await AsyncStorage.getItem("habits");
+    if (saved) setHabits(JSON.parse(saved));
   };
 
   const addHabit = () => {
     if (!habitText.trim()) return;
-
-    const newHabit = {
-      id: Date.now(),
-      name: habitText,
-      completed: false,
-    };
-
-    setHabits([
-      ...habits,
-      newHabit,
-    ]);
-
+    setHabits([...habits, { id: Date.now(), name: habitText, completed: false }]);
     setHabitText("");
   };
 
-  const toggleHabit = (
-    id: number
-  ) => {
-    setHabits(
-      habits.map((habit) =>
-        habit.id === id
-          ? {
-              ...habit,
-              completed:
-                !habit.completed,
-            }
-          : habit
-      )
-    );
-  };
+  const toggleHabit = (id: number) => setHabits(habits.map((h) => h.id === id ? { ...h, completed: !h.completed } : h));
+  const deleteHabit = (id: number) => setHabits(habits.filter((h) => h.id !== id));
 
-  const deleteHabit = (
-    id: number
-  ) => {
-    setHabits(
-      habits.filter(
-        (habit) =>
-          habit.id !== id
-      )
-    );
-  };
-
-  const completed =
-    habits.filter(
-      (h) => h.completed
-    ).length;
-
-  const progress =
-    habits.length > 0
-      ? (completed /
-          habits.length) *
-        100
-      : 0;
+  const completed = habits.filter((h) => h.completed).length;
+  const progress = habits.length > 0 ? (completed / habits.length) * 100 : 0;
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{
-        paddingBottom: 40,
-      }}
-      showsVerticalScrollIndicator={
-        false
-      }
-    >
-      <View style={styles.hero}>
-        <Text
-          style={styles.heroTitle}
-        >
-          📋 Habit Tracker
-        </Text>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
 
-        <Text
-          style={
-            styles.heroSubtitle
-          }
-        >
-          Build healthy routines
-        </Text>
-      </View>
+        <LinearGradient colors={Colors.gradientHabits} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+          <View style={styles.circle1} />
+          <Text style={styles.headerTitle}>📋 Habit Tracker</Text>
+          <Text style={styles.headerSub}>Build healthy daily routines</Text>
+        </LinearGradient>
 
-      <View style={styles.card}>
-        <Text
-          style={styles.progressTitle}
-        >
-          Today's Progress
-        </Text>
+        <View style={styles.content}>
 
-        <Text
-          style={styles.progressCount}
-        >
-          {completed} /{" "}
-          {habits.length}
-        </Text>
+          {/* Progress */}
+          <View style={[styles.card, Shadow.card]}>
+            <Text style={styles.sectionTitle}>Today's Progress</Text>
+            <View style={styles.progressRow}>
+              <Text style={styles.progressCount}>{completed}<Text style={styles.progressTotal}>/{habits.length}</Text></Text>
+              <Text style={styles.progressPercent}>{Math.round(progress)}%</Text>
+            </View>
+            <View style={styles.progressBg}>
+              <LinearGradient colors={Colors.gradientHabits} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.progressFill, { width: `${progress}%` }]} />
+            </View>
+          </View>
 
-        <View
-          style={
-            styles.progressBg
-          }
-        >
-          <View
-            style={[
-              styles.progressFill,
-              {
-                width: `${progress}%`,
-              },
-            ]}
-          />
+          {/* Add Habit */}
+          <View style={[styles.card, Shadow.card]}>
+            <Text style={styles.sectionTitle}>Add New Habit</Text>
+            <TextInput
+              placeholder="e.g. Morning run, Read 30 min..."
+              placeholderTextColor={Colors.textMuted}
+              value={habitText}
+              onChangeText={setHabitText}
+              style={styles.input}
+            />
+            <TouchableOpacity onPress={addHabit} activeOpacity={0.85}>
+              <LinearGradient colors={Colors.gradientHabits} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.addButton, Shadow.button]}>
+                <Text style={styles.addButtonText}>+ Add Habit</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+
+          {/* Habit List */}
+          {habits.map((habit) => (
+            <View key={habit.id} style={[styles.habitCard, Shadow.card, habit.completed && styles.habitCardDone]}>
+              <TouchableOpacity onPress={() => toggleHabit(habit.id)} style={styles.habitLeft} activeOpacity={0.7}>
+                <View style={[styles.checkbox, habit.completed && styles.checkboxDone]}>
+                  {habit.completed && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+                <Text style={[styles.habitName, habit.completed && styles.habitNameDone]}>{habit.name}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteHabit(habit.id)} style={styles.deleteBtn}>
+                <Text style={styles.deleteText}>🗑</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+
         </View>
-
-        <Text
-          style={styles.percent}
-        >
-          {Math.round(
-            progress
-          )}
-          %
-        </Text>
-      </View>
-
-      <View style={styles.addCard}>
-        <TextInput
-          placeholder="Add New Habit"
-          value={habitText}
-          onChangeText={
-            setHabitText
-          }
-          style={styles.input}
-        />
-
-        <TouchableOpacity
-          style={styles.addBtn}
-          onPress={addHabit}
-        >
-          <Text
-            style={
-              styles.btnText
-            }
-          >
-            Add Habit
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {habits.map((habit) => (
-        <View
-          key={habit.id}
-          style={styles.habitCard}
-        >
-          <TouchableOpacity
-            onPress={() =>
-              toggleHabit(
-                habit.id
-              )
-            }
-            style={
-              styles.habitLeft
-            }
-          >
-            <Text
-              style={
-                styles.checkbox
-              }
-            >
-              {habit.completed
-                ? "✅"
-                : "⬜"}
-            </Text>
-
-            <Text
-              style={
-                styles.habitText
-              }
-            >
-              {habit.name}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() =>
-              deleteHabit(
-                habit.id
-              )
-            }
-          >
-            <Text
-              style={
-                styles.delete
-              }
-            >
-              🗑️
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ))}
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor:
-      "#F3F4F6",
-    padding: 20,
-  },
-
-  hero: {
-    backgroundColor:
-      "#10B981",
-    padding: 25,
-    borderRadius: 25,
-    marginBottom: 20,
-  },
-
-  heroTitle: {
-    color: "#fff",
-    fontSize: 28,
-    fontWeight: "bold",
-  },
-
-  heroSubtitle: {
-    color: "#D1FAE5",
-    marginTop: 5,
-  },
-
-  card: {
-    backgroundColor:
-      "#fff",
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-  },
-
-  progressTitle: {
-    textAlign: "center",
-    color: "#666",
-  },
-
-  progressCount: {
-    textAlign: "center",
-    fontSize: 40,
-    fontWeight: "bold",
-  },
-
-  progressBg: {
-    height: 15,
-    backgroundColor:
-      "#E5E7EB",
-    borderRadius: 20,
-    overflow: "hidden",
-    marginTop: 10,
-  },
-
-  progressFill: {
-    height: "100%",
-    backgroundColor:
-      "#10B981",
-  },
-
-  percent: {
-    textAlign: "center",
-    marginTop: 10,
-    fontWeight: "bold",
-  },
-
-  addCard: {
-    backgroundColor:
-      "#fff",
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-  },
-
-  input: {
-    borderWidth: 1,
-    borderColor:
-      "#E5E7EB",
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 15,
-  },
-
-  addBtn: {
-    backgroundColor:
-      "#10B981",
-    padding: 15,
-    borderRadius: 15,
-  },
-
-  btnText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-
-  habitCard: {
-    backgroundColor:
-      "#fff",
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 12,
-
-    flexDirection: "row",
-    justifyContent:
-      "space-between",
-    alignItems: "center",
-  },
-
-  habitLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  checkbox: {
-    fontSize: 24,
-    marginRight: 10,
-  },
-
-  habitText: {
-    fontSize: 18,
-  },
-
-  delete: {
-    fontSize: 20,
-  },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
+  header: { paddingTop: 30, paddingBottom: 50, paddingHorizontal: 22, overflow: "hidden" },
+  circle1: { position: "absolute", width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(255,255,255,0.1)", top: -40, right: -40 },
+  headerTitle: { color: Colors.textWhite, fontSize: 28, fontWeight: "800" },
+  headerSub: { color: "rgba(255,255,255,0.75)", fontSize: 14, marginTop: 6 },
+  content: { backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, paddingTop: 24, paddingHorizontal: 18 },
+  card: { backgroundColor: Colors.card, borderRadius: Radius.xl, padding: 20, marginBottom: 16 },
+  sectionTitle: { fontSize: 17, fontWeight: "700", color: Colors.textPrimary, marginBottom: 16 },
+  progressRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 12 },
+  progressCount: { fontSize: 48, fontWeight: "800", color: Colors.textPrimary },
+  progressTotal: { fontSize: 24, color: Colors.textSecondary, fontWeight: "400" },
+  progressPercent: { fontSize: 24, fontWeight: "700", color: Colors.gradientHabits[0] },
+  progressBg: { height: 14, backgroundColor: Colors.border, borderRadius: 20, overflow: "hidden" },
+  progressFill: { height: "100%", borderRadius: 20 },
+  input: { backgroundColor: Colors.inputBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radius.md, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.textPrimary, marginBottom: 14 },
+  addButton: { borderRadius: Radius.md, paddingVertical: 14, alignItems: "center" },
+  addButtonText: { color: Colors.textWhite, fontSize: 16, fontWeight: "700" },
+  habitCard: { backgroundColor: Colors.card, borderRadius: Radius.lg, padding: 18, marginBottom: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  habitCardDone: { backgroundColor: Colors.success + "0D", borderWidth: 1, borderColor: Colors.success + "33" },
+  habitLeft: { flexDirection: "row", alignItems: "center", flex: 1 },
+  checkbox: { width: 26, height: 26, borderRadius: 8, borderWidth: 2, borderColor: Colors.border, marginRight: 14, alignItems: "center", justifyContent: "center" },
+  checkboxDone: { backgroundColor: Colors.success, borderColor: Colors.success },
+  checkmark: { color: Colors.textWhite, fontWeight: "800", fontSize: 14 },
+  habitName: { fontSize: 16, fontWeight: "600", color: Colors.textPrimary },
+  habitNameDone: { color: Colors.textMuted, textDecorationLine: "line-through" },
+  deleteBtn: { padding: 4 },
+  deleteText: { fontSize: 18 },
 });

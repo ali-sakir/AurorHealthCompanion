@@ -192,7 +192,7 @@ export default function LoginScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: "#ffffff",
   },
 
   hero: {

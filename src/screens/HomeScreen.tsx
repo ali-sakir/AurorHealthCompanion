@@ -198,6 +198,6 @@ const styles = StyleSheet.create({
   statLabel: { color: "rgba(255,255,255,0.75)", fontSize: 13 },
   statValue: { color: Colors.textWhite, fontSize: 26, fontWeight: "800", marginTop: 2 },
   statUnit: { color: "rgba(255,255,255,0.65)", fontSize: 12, marginTop: 2 },
-  aiButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 20, flexDirection: "row", justifyContent: "center" },
+  aiButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", flexDirection: "row", justifyContent: "center" },
   aiButtonText: { color: Colors.textWhite, fontSize: 16, fontWeight: "700" },
 });

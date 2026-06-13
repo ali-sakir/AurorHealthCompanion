@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,7 +13,11 @@ export default function SleepScreen() {
   const [sleepHours, setSleepHours] = useState(8);
   const [history, setHistory] = useState<number[]>([]);
 
-  useFocusEffect(useCallback(() => { loadData(); }, []));
+  const scrollRef = useRef<ScrollView>(null);
+  useFocusEffect(useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+    loadData();
+  }, []));
   useEffect(() => { AsyncStorage.setItem("sleepHours", sleepHours.toString()); }, [sleepHours]);
 
   const loadData = async () => {
@@ -50,7 +54,7 @@ export default function SleepScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
 
         <LinearGradient colors={Colors.gradientSleep} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />

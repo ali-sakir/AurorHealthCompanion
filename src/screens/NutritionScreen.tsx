@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,7 +14,11 @@ export default function NutritionScreen() {
   const [lunch, setLunch] = useState("");
   const [dinner, setDinner] = useState("");
 
-  useFocusEffect(useCallback(() => { loadNutrition(); }, []));
+  const scrollRef = useRef<ScrollView>(null);
+  useFocusEffect(useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+    loadNutrition();
+  }, []));
   useEffect(() => { saveNutrition(); }, [breakfast, lunch, dinner]);
 
   const saveNutrition = async () => {
@@ -50,7 +54,7 @@ export default function NutritionScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
 
         <LinearGradient colors={Colors.gradientNutrition} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />

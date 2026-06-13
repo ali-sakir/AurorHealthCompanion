@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,7 +12,11 @@ const DAILY_GOAL = 8;
 export default function HydrationScreen() {
   const [glasses, setGlasses] = useState(0);
 
-  useFocusEffect(useCallback(() => { loadData(); }, []));
+  const scrollRef = useRef<ScrollView>(null);
+  useFocusEffect(useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+    loadData();
+  }, []));
 
   const loadData = async () => {
     const saved = await AsyncStorage.getItem("waterCount");
@@ -43,7 +47,7 @@ export default function HydrationScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
 
         <LinearGradient colors={Colors.gradientWater} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />

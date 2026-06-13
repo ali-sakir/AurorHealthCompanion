@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { Colors, Radius, Shadow } from "../constants/theme";
 
 export default function ProfileScreen() {
+  const scrollRef = useRef<ScrollView>(null);
+
+  useFocusEffect(useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, []));
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
@@ -71,7 +77,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
 
         <LinearGradient colors={Colors.gradientProfile} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />

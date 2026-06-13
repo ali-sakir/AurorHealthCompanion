@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,7 +22,11 @@ export default function HomeScreen({ navigation }: any) {
   const [totalHabits, setTotalHabits] = useState(0);
   const [recommendation, setRecommendation] = useState("Keep up the great work!");
 
-  useFocusEffect(useCallback(() => { loadDashboard(); }, []));
+  const scrollRef = useRef<ScrollView>(null);
+  useFocusEffect(useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+    loadDashboard();
+  }, []));
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -97,7 +101,7 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
 
         {/* Header */}
         <LinearGradient colors={Colors.gradientHero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>

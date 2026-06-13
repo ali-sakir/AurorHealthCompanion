@@ -130,6 +130,6 @@ const styles = StyleSheet.create({
   message: { textAlign: "center", fontSize: 18, fontWeight: "700" },
   primaryButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 12, flexDirection: "row", justifyContent: "center" },
   primaryButtonText: { color: Colors.textWhite, fontSize: 16, fontWeight: "700" },
-  resetButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 32, borderWidth: 1.5, borderColor: Colors.danger, backgroundColor: Colors.danger + "11", flexDirection: "row", justifyContent: "center" },
+  resetButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", borderWidth: 1.5, borderColor: Colors.danger, backgroundColor: Colors.danger + "11", flexDirection: "row", justifyContent: "center" },
   resetText: { color: Colors.danger, fontSize: 16, fontWeight: "700" },
 });

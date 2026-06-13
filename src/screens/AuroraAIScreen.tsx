@@ -141,9 +141,12 @@ export default function AuroraAIScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={90}>
-
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: Colors.gradientAI[0] }}
+      behavior="padding"
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
+    >
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <LinearGradient colors={Colors.gradientAI} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />
           <Text style={styles.headerTitle}>Aurora AI</Text>
@@ -193,9 +196,8 @@ export default function AuroraAIScreen() {
             </TouchableOpacity>
           </View>
         </View>
-
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 

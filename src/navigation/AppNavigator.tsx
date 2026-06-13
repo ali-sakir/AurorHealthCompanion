@@ -1,6 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../constants/theme";
 
 import HomeScreen from "../screens/HomeScreen";
@@ -14,6 +15,8 @@ import AuroraAIScreen from "../screens/AuroraAIScreen";
 const Tab = createBottomTabNavigator();
 
 export default function AppNavigator() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -24,9 +27,9 @@ export default function AppNavigator() {
           backgroundColor: "#ffffff",
           borderTopWidth: 1,
           borderTopColor: Colors.border,
-          paddingBottom: 6,
           paddingTop: 6,
-          height: 62,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
+          height: 56 + (insets.bottom > 0 ? insets.bottom : 10),
         },
         tabBarLabelStyle: {
           fontSize: 11,

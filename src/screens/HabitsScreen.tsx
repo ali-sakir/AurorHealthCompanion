@@ -48,7 +48,7 @@ export default function HabitsScreen() {
 
         <LinearGradient colors={Colors.gradientHabits} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />
-          <Ionicons name="checkbox" size={32} color="rgba(255,255,255,0.85)" style={{ marginBottom: 8 }} />
+          {/* <Ionicons name="checkbox" size={32} color="rgba(255,255,255,0.85)" style={{ marginBottom: 8 }} /> */}
           <Text style={styles.headerTitle}>Habit Tracker</Text>
           <Text style={styles.headerSub}>Build healthy daily routines</Text>
         </LinearGradient>

@@ -58,7 +58,7 @@ export default function SleepScreen() {
 
         <LinearGradient colors={Colors.gradientSleep} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />
-          <Ionicons name="moon" size={32} color="rgba(255,255,255,0.85)" style={{ marginBottom: 8 }} />
+          {/* <Ionicons name="moon" size={32} color="rgba(255,255,255,0.85)" style={{ marginBottom: 8 }} /> */}
           <Text style={styles.headerTitle}>Sleep Tracker</Text>
           <Text style={styles.headerSub}>Improve your sleeping habits</Text>
         </LinearGradient>

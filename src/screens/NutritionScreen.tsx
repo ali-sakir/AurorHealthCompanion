@@ -58,7 +58,7 @@ export default function NutritionScreen() {
 
         <LinearGradient colors={Colors.gradientNutrition} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />
-          <Ionicons name="restaurant" size={32} color="rgba(255,255,255,0.85)" style={{ marginBottom: 8 }} />
+          {/* <Ionicons name="restaurant" size={32} color="rgba(255,255,255,0.85)" style={{ marginBottom: 8 }} /> */}
           <Text style={styles.headerTitle}>Nutrition Tracker</Text>
           <Text style={styles.headerSub}>Monitor your daily calorie intake</Text>
         </LinearGradient>

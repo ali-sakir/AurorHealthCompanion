@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
@@ -39,11 +40,12 @@ export default function HabitsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
 
         <LinearGradient colors={Colors.gradientHabits} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />
-          <Text style={styles.headerTitle}>📋 Habit Tracker</Text>
+          <Ionicons name="checkbox" size={32} color="rgba(255,255,255,0.85)" style={{ marginBottom: 8 }} />
+          <Text style={styles.headerTitle}>Habit Tracker</Text>
           <Text style={styles.headerSub}>Build healthy daily routines</Text>
         </LinearGradient>
 
@@ -83,12 +85,12 @@ export default function HabitsScreen() {
             <View key={habit.id} style={[styles.habitCard, Shadow.card, habit.completed && styles.habitCardDone]}>
               <TouchableOpacity onPress={() => toggleHabit(habit.id)} style={styles.habitLeft} activeOpacity={0.7}>
                 <View style={[styles.checkbox, habit.completed && styles.checkboxDone]}>
-                  {habit.completed && <Text style={styles.checkmark}>✓</Text>}
+                  {habit.completed && <Ionicons name="checkmark" size={14} color="#fff" />}
                 </View>
                 <Text style={[styles.habitName, habit.completed && styles.habitNameDone]}>{habit.name}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => deleteHabit(habit.id)} style={styles.deleteBtn}>
-                <Text style={styles.deleteText}>🗑</Text>
+                <Ionicons name="trash-outline" size={20} color={Colors.danger} />
               </TouchableOpacity>
             </View>
           ))}
@@ -103,7 +105,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.background },
   header: { paddingTop: 30, paddingBottom: 50, paddingHorizontal: 22, overflow: "hidden" },
   circle1: { position: "absolute", width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(255,255,255,0.1)", top: -40, right: -40 },
-  headerTitle: { color: Colors.textWhite, fontSize: 28, fontWeight: "800" },
+  headerTitle: { color: Colors.textWhite, fontSize: 26, fontWeight: "800" },
   headerSub: { color: "rgba(255,255,255,0.75)", fontSize: 14, marginTop: 6 },
   content: { backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, paddingTop: 24, paddingHorizontal: 18 },
   card: { backgroundColor: Colors.card, borderRadius: Radius.xl, padding: 20, marginBottom: 16 },
@@ -115,16 +117,14 @@ const styles = StyleSheet.create({
   progressBg: { height: 14, backgroundColor: Colors.border, borderRadius: 20, overflow: "hidden" },
   progressFill: { height: "100%", borderRadius: 20 },
   input: { backgroundColor: Colors.inputBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radius.md, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: Colors.textPrimary, marginBottom: 14 },
-  addButton: { borderRadius: Radius.md, paddingVertical: 14, alignItems: "center" },
+  addButton: { borderRadius: Radius.md, paddingVertical: 14, alignItems: "center", flexDirection: "row", justifyContent: "center" },
   addButtonText: { color: Colors.textWhite, fontSize: 16, fontWeight: "700" },
   habitCard: { backgroundColor: Colors.card, borderRadius: Radius.lg, padding: 18, marginBottom: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   habitCardDone: { backgroundColor: Colors.success + "0D", borderWidth: 1, borderColor: Colors.success + "33" },
   habitLeft: { flexDirection: "row", alignItems: "center", flex: 1 },
   checkbox: { width: 26, height: 26, borderRadius: 8, borderWidth: 2, borderColor: Colors.border, marginRight: 14, alignItems: "center", justifyContent: "center" },
   checkboxDone: { backgroundColor: Colors.success, borderColor: Colors.success },
-  checkmark: { color: Colors.textWhite, fontWeight: "800", fontSize: 14 },
   habitName: { fontSize: 16, fontWeight: "600", color: Colors.textPrimary },
   habitNameDone: { color: Colors.textMuted, textDecorationLine: "line-through" },
-  deleteBtn: { padding: 4 },
-  deleteText: { fontSize: 18 },
+  deleteBtn: { padding: 6 },
 });

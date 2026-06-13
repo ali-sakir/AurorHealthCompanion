@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
@@ -49,11 +50,12 @@ export default function SleepScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
 
         <LinearGradient colors={Colors.gradientSleep} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />
-          <Text style={styles.headerTitle}>🌙 Sleep Tracker</Text>
+          <Ionicons name="moon" size={32} color="rgba(255,255,255,0.85)" style={{ marginBottom: 8 }} />
+          <Text style={styles.headerTitle}>Sleep Tracker</Text>
           <Text style={styles.headerSub}>Improve your sleeping habits</Text>
         </LinearGradient>
 
@@ -95,7 +97,10 @@ export default function SleepScreen() {
 
           {/* Weekly Insights */}
           <View style={[styles.card, Shadow.card]}>
-            <Text style={styles.sectionTitle}>📊 Weekly Insights</Text>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="stats-chart" size={18} color={Colors.textPrimary} style={{ marginRight: 8 }} />
+              <Text style={styles.sectionTitle}>Weekly Insights</Text>
+            </View>
             <View style={styles.insightRow}>
               <View style={styles.insightItem}>
                 <Text style={styles.insightLabel}>7-Day Average</Text>
@@ -111,11 +116,13 @@ export default function SleepScreen() {
 
           <TouchableOpacity onPress={saveTodaySleep} activeOpacity={0.85}>
             <LinearGradient colors={Colors.gradientSleep} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.primaryButton, Shadow.button]}>
+              <Ionicons name="save-outline" size={18} color="#fff" style={{ marginRight: 8 }} />
               <Text style={styles.primaryButtonText}>Save Today's Sleep</Text>
             </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.resetButton} onPress={resetSleep} activeOpacity={0.85}>
+            <Ionicons name="refresh" size={18} color={Colors.danger} style={{ marginRight: 8 }} />
             <Text style={styles.resetText}>Reset Sleep Data</Text>
           </TouchableOpacity>
 
@@ -129,7 +136,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.background },
   header: { paddingTop: 30, paddingBottom: 50, paddingHorizontal: 22, overflow: "hidden" },
   circle1: { position: "absolute", width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(255,255,255,0.08)", top: -40, right: -40 },
-  headerTitle: { color: Colors.textWhite, fontSize: 28, fontWeight: "800" },
+  headerTitle: { color: Colors.textWhite, fontSize: 26, fontWeight: "800" },
   headerSub: { color: "rgba(255,255,255,0.75)", fontSize: 14, marginTop: 6 },
   content: { backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, paddingTop: 24, paddingHorizontal: 18 },
   card: { backgroundColor: Colors.card, borderRadius: Radius.xl, padding: 20, marginBottom: 16 },
@@ -142,7 +149,9 @@ const styles = StyleSheet.create({
   statusPill: { paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20, alignSelf: "center", marginTop: 12 },
   statusText: { fontWeight: "700", fontSize: 16 },
   scoreText: { textAlign: "center", color: Colors.textSecondary, fontSize: 15, marginTop: 10 },
-  sectionTitle: { fontSize: 17, fontWeight: "700", color: Colors.textPrimary, marginBottom: 16 },
+  sectionTitleRow: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
+  sectionTitle: { fontSize: 17, fontWeight: "700", color: Colors.textPrimary },
+  sectionTitleStandalone: { fontSize: 17, fontWeight: "700", color: Colors.textPrimary, marginBottom: 16 },
   controlRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   controlBtn: { borderRadius: Radius.md, paddingVertical: 14, paddingHorizontal: 22 },
   controlBtnText: { color: Colors.textWhite, fontWeight: "700", fontSize: 15 },
@@ -153,8 +162,8 @@ const styles = StyleSheet.create({
   insightLabel: { color: Colors.textSecondary, fontSize: 13, marginBottom: 6 },
   insightValue: { fontSize: 36, fontWeight: "800", color: Colors.textPrimary },
   insightUnit: { fontSize: 16, color: Colors.textSecondary, fontWeight: "400" },
-  primaryButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 12 },
+  primaryButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 12, flexDirection: "row", justifyContent: "center" },
   primaryButtonText: { color: Colors.textWhite, fontSize: 16, fontWeight: "700" },
-  resetButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", borderWidth: 1.5, borderColor: Colors.danger, backgroundColor: Colors.danger + "11" },
+  resetButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", borderWidth: 1.5, borderColor: Colors.danger, backgroundColor: Colors.danger + "11", flexDirection: "row", justifyContent: "center" },
   resetText: { color: Colors.danger, fontSize: 16, fontWeight: "700" },
 });

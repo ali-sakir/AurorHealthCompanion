@@ -6,7 +6,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors, Radius, Shadow } from "../constants/theme";
 
@@ -114,10 +114,10 @@ export default function AuroraAIScreen() {
   };
 
   const quickActions = [
-    { label: "💧 Water", text: "I drank 500ml water" },
-    { label: "🌙 Sleep", text: "I slept 8 hours" },
-    { label: "🍎 Calories", text: "I had 500 calories for lunch" },
-    { label: "📊 Summary", text: "Give me health summary" },
+    { label: "Water",    icon: "water-outline" as const,      text: "I drank 500ml water" },
+    { label: "Sleep",    icon: "moon-outline" as const,       text: "I slept 8 hours" },
+    { label: "Calories", icon: "restaurant-outline" as const, text: "I had 500 calories for lunch" },
+    { label: "Summary",  icon: "stats-chart-outline" as const, text: "Give me health summary" },
   ];
 
   const renderItem = ({ item }: { item: Message }) => (
@@ -133,7 +133,7 @@ export default function AuroraAIScreen() {
 
         <LinearGradient colors={Colors.gradientAI} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.circle1} />
-          <Text style={styles.headerTitle}>✨ Aurora AI</Text>
+          <Text style={styles.headerTitle}>Aurora AI</Text>
           <Text style={styles.headerSub}>Your Personal Health Companion</Text>
         </LinearGradient>
 
@@ -142,6 +142,7 @@ export default function AuroraAIScreen() {
           <View style={styles.quickActions}>
             {quickActions.map((q) => (
               <TouchableOpacity key={q.label} style={styles.chip} onPress={() => setInput(q.text)} activeOpacity={0.8}>
+                <Ionicons name={q.icon} size={14} color={Colors.accent} style={{ marginRight: 5 }} />
                 <Text style={styles.chipText}>{q.label}</Text>
               </TouchableOpacity>
             ))}
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
   headerSub: { color: "rgba(255,255,255,0.7)", fontSize: 14, marginTop: 4 },
   content: { flex: 1, backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -16, overflow: "hidden" },
   quickActions: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 16, paddingTop: 14, paddingBottom: 4 },
-  chip: { backgroundColor: Colors.accent + "15", borderWidth: 1, borderColor: Colors.accent + "30", paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, marginRight: 8, marginBottom: 8 },
+  chip: { backgroundColor: Colors.accent + "15", borderWidth: 1, borderColor: Colors.accent + "30", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, marginRight: 8, marginBottom: 8, flexDirection: "row", alignItems: "center" },
   chipText: { fontWeight: "600", color: Colors.accent, fontSize: 13 },
   messageBubble: { maxWidth: "82%", padding: 14, borderRadius: 18, marginBottom: 10 },
   userBubble: { alignSelf: "flex-end", ...Shadow.card },

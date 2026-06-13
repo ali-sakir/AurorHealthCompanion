@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -86,17 +87,17 @@ export default function HomeScreen({ navigation }: any) {
   };
 
   const statCards = [
-    { label: "Water", value: `${water}/${waterGoal}`, unit: "glasses", emoji: "💧", gradient: Colors.gradientWater, screen: "Hydration" },
-    { label: "Calories", value: `${calories}`, unit: `/ ${calorieGoal} kcal`, emoji: "🍎", gradient: Colors.gradientNutrition, screen: "Nutrition" },
-    { label: "Sleep", value: `${sleep}/${sleepGoal}`, unit: "hours", emoji: "🌙", gradient: Colors.gradientSleep, screen: "Sleep" },
-    { label: "Habits", value: `${completedHabits}/${totalHabits}`, unit: "done", emoji: "📋", gradient: Colors.gradientHabits, screen: "Habits" },
+    { label: "Water", value: `${water}/${waterGoal}`, unit: "glasses", icon: "water", gradient: Colors.gradientWater, screen: "Hydration" },
+    { label: "Calories", value: `${calories}`, unit: `/ ${calorieGoal} kcal`, icon: "restaurant", gradient: Colors.gradientNutrition, screen: "Nutrition" },
+    { label: "Sleep", value: `${sleep}/${sleepGoal}`, unit: "hours", icon: "moon", gradient: Colors.gradientSleep, screen: "Sleep" },
+    { label: "Habits", value: `${completedHabits}/${totalHabits}`, unit: "done", icon: "checkmark-circle", gradient: Colors.gradientHabits, screen: "Habits" },
   ];
 
   const scoreColor = healthScore >= 75 ? Colors.primary : healthScore >= 50 ? Colors.warning : Colors.danger;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
 
         {/* Header */}
         <LinearGradient colors={Colors.gradientHero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
@@ -108,7 +109,7 @@ export default function HomeScreen({ navigation }: any) {
               <Text style={styles.userName}>{userName}</Text>
               <Text style={styles.appName}>Pocket Health Companion</Text>
             </View>
-            <Image source={logo} style={styles.headerLogo} />
+            {/* <Image source={logo} style={styles.headerLogo} /> */}
           </View>
         </LinearGradient>
 
@@ -140,7 +141,7 @@ export default function HomeScreen({ navigation }: any) {
             {statCards.map((card) => (
               <TouchableOpacity key={card.label} style={styles.statCardWrapper} onPress={() => navigation.navigate(card.screen)} activeOpacity={0.85}>
                 <LinearGradient colors={card.gradient as any} style={[styles.statCard, Shadow.card]}>
-                  <Text style={styles.statEmoji}>{card.emoji}</Text>
+                  <Ionicons name={card.icon as any} size={26} color="rgba(255,255,255,0.9)" style={{ marginBottom: 10 }} />
                   <Text style={styles.statLabel}>{card.label}</Text>
                   <Text style={styles.statValue}>{card.value}</Text>
                   <Text style={styles.statUnit}>{card.unit}</Text>
@@ -153,7 +154,8 @@ export default function HomeScreen({ navigation }: any) {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate("Aurora AI")}>
             <LinearGradient colors={Colors.gradientAI} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.aiButton, Shadow.button]}>
-              <Text style={styles.aiButtonText}>✨ Chat with Aurora AI</Text>
+              <Ionicons name="sparkles" size={18} color="#fff" style={{ marginRight: 8 }} />
+              <Text style={styles.aiButtonText}>Chat with Aurora AI</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
   greeting: { color: "rgba(255,255,255,0.7)", fontSize: 15 },
   userName: { color: Colors.textWhite, fontSize: 26, fontWeight: "800", marginTop: 2 },
   appName: { color: "rgba(255,255,255,0.5)", fontSize: 13, marginTop: 2 },
-  headerLogo: { width: 48, height: 48, borderRadius: 14 },
+  headerLogo: { width: 120, height: 120, borderRadius: 14 },
   content: { backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, paddingTop: 24, paddingHorizontal: 18 },
   scoreCard: { backgroundColor: Colors.card, borderRadius: Radius.xl, padding: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },
   scoreLeft: { flex: 1 },
@@ -188,10 +190,10 @@ const styles = StyleSheet.create({
   grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginBottom: 24 },
   statCardWrapper: { width: "48%", marginBottom: 14 },
   statCard: { borderRadius: Radius.lg, padding: 18 },
-  statEmoji: { fontSize: 28, marginBottom: 8 },
+
   statLabel: { color: "rgba(255,255,255,0.75)", fontSize: 13 },
   statValue: { color: Colors.textWhite, fontSize: 26, fontWeight: "800", marginTop: 2 },
   statUnit: { color: "rgba(255,255,255,0.65)", fontSize: 12, marginTop: 2 },
-  aiButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 20 },
+  aiButton: { borderRadius: Radius.md, paddingVertical: 16, alignItems: "center", marginBottom: 20, flexDirection: "row", justifyContent: "center" },
   aiButtonText: { color: Colors.textWhite, fontSize: 16, fontWeight: "700" },
 });

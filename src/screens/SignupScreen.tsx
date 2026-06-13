@@ -52,10 +52,10 @@ export default function SignupScreen({ navigation }: any) {
           <View style={styles.circle1} />
           <View style={styles.circle2} />
           <View style={styles.logoContainer}>
-            <LinearGradient colors={Colors.gradientButton} style={styles.logoIconWrapper}>
+            {/* <LinearGradient colors={Colors.gradientButton} style={styles.logoIconWrapper}> */}
               <Image source={logo} style={styles.logoImage} />
-            </LinearGradient>
-            <Svg height={36} width={220}>
+            {/* </LinearGradient> */}
+            {/* <Svg height={36} width={220}>
               <Defs>
                 <SvgLinearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
                   <Stop offset="0" stopColor={Colors.primary} />
@@ -66,7 +66,7 @@ export default function SignupScreen({ navigation }: any) {
               <SvgText fill="url(#grad)" fontSize={26} fontWeight="700" x="110" y="28" textAnchor="middle">
                 Pocket Health
               </SvgText>
-            </Svg>
+            </Svg> */}
             <Text style={styles.heroSubtitle}>Start your health journey today</Text>
           </View>
         </LinearGradient>
@@ -85,7 +85,7 @@ export default function SignupScreen({ navigation }: any) {
           {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
           <View style={[styles.inputWrapper, passwordError ? styles.inputWrapperError : null]}>
-            <TextInput placeholder="Password" placeholderTextColor={Colors.textMuted} value={password} onChangeText={validatePassword} style={styles.input} secureTextEntry />
+            <TextInput placeholder="Password (min. 8 characters)" placeholderTextColor={Colors.textMuted} value={password} onChangeText={validatePassword} style={styles.input} secureTextEntry />
           </View>
           {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   circle2: { position: "absolute", width: 160, height: 160, borderRadius: 80, backgroundColor: "rgba(168,85,247,0.1)", bottom: -40, left: -40 },
   logoContainer: { alignItems: "center", gap: 10 },
   logoIconWrapper: { width: 72, height: 72, borderRadius: 20, alignItems: "center", justifyContent: "center", marginBottom: 4, ...Shadow.button },
-  logoImage: { width: 46, height: 46, borderRadius: 10 },
+  logoImage: { width: 120, height: 120, borderRadius: 10 },
   heroSubtitle: { color: "rgba(255,255,255,0.55)", fontSize: 14, marginTop: 2 },
   card: { backgroundColor: Colors.card, borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: -28, paddingHorizontal: 26, paddingTop: 36, paddingBottom: 40, minHeight: 600 },
   title: { fontSize: 28, fontWeight: "800", color: Colors.textPrimary, marginBottom: 4 },

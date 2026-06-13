@@ -33,7 +33,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      {true ? (
+      {isLoggedIn ? (
         <AppNavigator />
       ) : (
         <AuthNavigator />

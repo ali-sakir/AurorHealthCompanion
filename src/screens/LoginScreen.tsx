@@ -87,7 +87,7 @@ export default function LoginScreen({ navigation }: any) {
               <Image source={logo} style={styles.logoImage} />
             {/* </LinearGradient> */}
 
-            <Svg height={36} width={220}>
+            {/* <Svg height={36} width={220}>
               <Defs>
                 <SvgLinearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="0">
                   <Stop offset="0" stopColor="#2ebba8" />
@@ -105,7 +105,7 @@ export default function LoginScreen({ navigation }: any) {
               >
                 Pocket Health
               </SvgText>
-            </Svg>
+            </Svg> */}
 
             <Text style={styles.heroSubtitle}>Your personal health companion</Text>
           </View>
@@ -144,7 +144,7 @@ export default function LoginScreen({ navigation }: any) {
           {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
           {/* Forgot */}
-          <TouchableOpacity style={styles.forgotContainer}>
+          <TouchableOpacity style={styles.forgotContainer} onPress={() => navigation.navigate("ForgotPassword")}>
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
 
@@ -243,8 +243,8 @@ const styles = StyleSheet.create({
   },
 
   logoImage: {
-    width: 46,
-    height: 46,
+    width: 120,
+    height: 120,
     borderRadius: 10,
   },
 

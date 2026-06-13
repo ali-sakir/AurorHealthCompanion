@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Alert
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -86,6 +87,17 @@ export default function ProfileScreen() {
 
     alert("Profile Saved!");
   };
+
+    const logout = async () => {
+  await AsyncStorage.removeItem(
+    "token"
+  );
+
+  Alert.alert(
+    "Logged Out",
+    "Restart App"
+  );
+};
 
   const bmi =
     height && weight
@@ -239,6 +251,26 @@ export default function ProfileScreen() {
           style={styles.saveText}
         >
           Save Profile
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{
+          backgroundColor: "red",
+          padding: 15,
+          borderRadius: 15,
+          marginTop: 20,
+        }}
+        onPress={logout}
+      >
+        <Text
+          style={{
+            color: "#fff",
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
+        >
+          Logout
         </Text>
       </TouchableOpacity>
     </ScrollView>

@@ -16,7 +16,7 @@ export default function AuroraAIScreen() {
   const [input, setInput] = useState("");
   const flatListRef = useRef<FlatList>(null);
   const [messages, setMessages] = useState<Message[]>([
-    { id: "1", text: "Hi! I'm Aurora 🤖\n\nI can help you track water, sleep, nutrition and habits.\n\nTry saying:\n• \"I drank 500ml water\"\n• \"I slept 7 hours\"\n• \"I had 600 calories for breakfast\"\n• \"Add habit yoga\"", sender: "ai" },
+    { id: Date.now().toString(), text: "Hi! I'm Aurora\n\nI can help you track water, sleep, nutrition and habits.\n\nTry saying:\n  I drank 500ml water\n  I slept 7 hours\n  I had 600 calories for breakfast\n  Add habit yoga", sender: "ai" },
   ]);
 
   useEffect(() => { Speech.speak("Hello. I am Aurora, your health companion."); }, []);
@@ -35,7 +35,7 @@ export default function AuroraAIScreen() {
       const current = await AsyncStorage.getItem("waterCount");
       const updated = Number(current || 0) + glasses;
       await AsyncStorage.setItem("waterCount", updated.toString());
-      return `💧 Added ${ml}ml water (${glasses} glasses) to your hydration tracker.`;
+      return `Added ${ml}ml water (${glasses} glasses) to your hydration tracker.`;
     }
 
     if (sleepMatch && (lower.includes("sleep") || lower.includes("slept"))) {
@@ -44,7 +44,7 @@ export default function AuroraAIScreen() {
       const historyData = await AsyncStorage.getItem("sleepHistory");
       const history = historyData ? JSON.parse(historyData) : [];
       await AsyncStorage.setItem("sleepHistory", JSON.stringify([...history, hours].slice(-7)));
-      return `🌙 Logged ${hours} hours of sleep successfully.`;
+      return `Logged ${hours} hours of sleep successfully.`;
     }
 
     if (calorieMatch && (lower.includes("breakfast") || lower.includes("lunch") || lower.includes("dinner"))) {
@@ -55,7 +55,7 @@ export default function AuroraAIScreen() {
       if (lower.includes("lunch")) nutrition.lunch = (Number(nutrition.lunch || 0) + Number(calories)).toString();
       if (lower.includes("dinner")) nutrition.dinner = (Number(nutrition.dinner || 0) + Number(calories)).toString();
       await AsyncStorage.setItem("nutrition", JSON.stringify(nutrition));
-      return `🍎 Logged ${calories} calories successfully.`;
+      return `Logged ${calories} calories successfully.`;
     }
 
     const createHabitMatch = lower.match(/add habit (.+)/);
@@ -65,18 +65,18 @@ export default function AuroraAIScreen() {
       const habits = savedHabits ? JSON.parse(savedHabits) : [];
       habits.push({ id: Date.now(), name: habitName, completed: false });
       await AsyncStorage.setItem("habits", JSON.stringify(habits));
-      return `📋 Added habit: ${habitName}`;
+      return `Added habit: ${habitName}`;
     }
 
     const completeHabitMatch = lower.match(/complete habit (.+)/);
     if (completeHabitMatch) {
       const habitName = completeHabitMatch[1].trim().toLowerCase();
       const savedHabits = await AsyncStorage.getItem("habits");
-      if (!savedHabits) return "📋 No habits found.";
+      if (!savedHabits) return "No habits found.";
       const habits = JSON.parse(savedHabits);
       const updated = habits.map((h: any) => h.name.toLowerCase().includes(habitName) ? { ...h, completed: true } : h);
       await AsyncStorage.setItem("habits", JSON.stringify(updated));
-      return `✅ Habit completed: ${habitName}`;
+      return `Habit completed: ${habitName}`;
     }
 
     if (lower.includes("health advice") || lower.includes("give me advice") || lower.includes("health report") || lower.includes("health summary")) {
@@ -96,11 +96,11 @@ export default function AuroraAIScreen() {
       let completedHabits = 0, totalHabits = 0;
       if (habitsData) { const h = JSON.parse(habitsData); totalHabits = h.length; completedHabits = h.filter((h: any) => h.completed).length; }
       const overall = Math.round((Math.min((water/waterGoal)*100,100) + Math.min((sleep/sleepGoal)*100,100) + Math.min((calories/calorieGoal)*100,100) + (totalHabits > 0 ? (completedHabits/totalHabits)*100 : 0)) / 4);
-      const rating = overall >= 90 ? "🏆 Excellent" : overall >= 75 ? "💪 Very Good" : overall >= 60 ? "🙂 Good" : overall >= 40 ? "⚠️ Needs Improvement" : "🚨 Poor";
-      return `👋 ${name}\n\n${rating} — ${overall}/100\n\n📊 Health Summary\n💧 Water: ${water}/${waterGoal} glasses\n🍎 Calories: ${calories}/${calorieGoal} kcal\n🌙 Sleep: ${sleep}/${sleepGoal} hrs\n📋 Habits: ${completedHabits}/${totalHabits}\n⚖️ BMI: ${bmi}`;
+      const rating = overall >= 90 ? "Excellent" : overall >= 75 ? "Very Good" : overall >= 60 ? "Good" : overall >= 40 ? "Needs Improvement" : "Poor";
+      return `Hi ${name}\n\nHealth Score: ${overall}/100  (${rating})\n\nHealth Summary\nWater:     ${water}/${waterGoal} glasses\nCalories:  ${calories}/${calorieGoal} kcal\nSleep:     ${sleep}/${sleepGoal} hrs\nHabits:    ${completedHabits}/${totalHabits} done\nBMI:       ${bmi}`;
     }
 
-    return "🤖 I'm Aurora. I can help track hydration, sleep, nutrition and habits. Try asking for a health summary!";
+    return "I'm Aurora. I can help track hydration, sleep, nutrition and habits. Try asking for a health summary!";
   };
 
   const sendMessage = async () => {
@@ -120,12 +120,25 @@ export default function AuroraAIScreen() {
     { label: "Summary",  icon: "stats-chart-outline" as const, text: "Give me health summary" },
   ];
 
-  const renderItem = ({ item }: { item: Message }) => (
-    <View style={[styles.messageBubble, item.sender === "user" ? styles.userBubble : styles.aiBubble]}>
-      {item.sender === "ai" && <Text style={styles.aiLabel}>🤖 Aurora</Text>}
-      <Text style={item.sender === "user" ? styles.userText : styles.aiText}>{item.text}</Text>
-    </View>
-  );
+  const renderItem = ({ item }: { item: Message }) => {
+    const isUser = item.sender === "user";
+    return (
+      <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.aiBubble]}>
+        {!isUser && (
+          <View style={styles.aiLabelRow}>
+            <LinearGradient colors={Colors.gradientAI} style={styles.aiAvatarDot}>
+              <Ionicons name="sparkles" size={10} color="#fff" />
+            </LinearGradient>
+            <Text style={styles.aiLabel}>Aurora</Text>
+          </View>
+        )}
+        <Text style={isUser ? styles.userText : styles.aiText}>{item.text}</Text>
+        <Text style={[styles.timestamp, isUser ? styles.timestampUser : styles.timestampAI]}>
+          {new Date(Number(item.id)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
@@ -197,11 +210,16 @@ const styles = StyleSheet.create({
   chip: { backgroundColor: Colors.accent + "15", borderWidth: 1, borderColor: Colors.accent + "30", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, marginRight: 8, marginBottom: 8, flexDirection: "row", alignItems: "center" },
   chipText: { fontWeight: "600", color: Colors.accent, fontSize: 13 },
   messageBubble: { maxWidth: "82%", padding: 14, borderRadius: 18, marginBottom: 10 },
-  userBubble: { alignSelf: "flex-end", ...Shadow.card },
-  aiBubble: { alignSelf: "flex-start", backgroundColor: Colors.card, borderWidth: 1, borderColor: Colors.border, ...Shadow.card },
-  aiLabel: { fontSize: 11, color: Colors.accent, fontWeight: "700", marginBottom: 4 },
-  userText: { color: Colors.textWhite, fontSize: 15, lineHeight: 21 },
-  aiText: { color: Colors.textPrimary, fontSize: 15, lineHeight: 21 },
+  userBubble: { alignSelf: "flex-end", backgroundColor: Colors.secondary, borderBottomRightRadius: 4, ...Shadow.card },
+  aiBubble: { alignSelf: "flex-start", backgroundColor: Colors.card, borderWidth: 1, borderColor: Colors.border, borderBottomLeftRadius: 4, ...Shadow.card },
+  aiLabelRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
+  aiAvatarDot: { width: 18, height: 18, borderRadius: 9, alignItems: "center", justifyContent: "center", marginRight: 6 },
+  aiLabel: { fontSize: 11, color: Colors.accent, fontWeight: "700" },
+  userText: { color: Colors.textWhite, fontSize: 15, lineHeight: 22 },
+  aiText: { color: Colors.textPrimary, fontSize: 15, lineHeight: 22 },
+  timestamp: { fontSize: 10, marginTop: 6 },
+  timestampUser: { color: "rgba(255,255,255,0.55)", textAlign: "right" },
+  timestampAI: { color: Colors.textMuted, textAlign: "left" },
   inputBar: { flexDirection: "row", alignItems: "center", padding: 12, backgroundColor: Colors.card, borderTopWidth: 1, borderTopColor: Colors.border },
   textInput: { flex: 1, backgroundColor: Colors.inputBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, color: Colors.textPrimary, maxHeight: 80 },
   voiceBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.accent + "15", alignItems: "center", justifyContent: "center", marginHorizontal: 8 },

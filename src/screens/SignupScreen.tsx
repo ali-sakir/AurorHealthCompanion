@@ -17,7 +17,7 @@ import AppleIcon from "../../assets/images/AppleLight.svg";
 import GitHubIcon from "../../assets/images/GitHubLight.svg";
 import { Colors, Radius, Shadow } from "../constants/theme";
 import { supabase } from '../services/supabase';
-//import { register } from "../services/api";
+import { useOAuth } from '../services/useOAuth';
 
 const logo = require("../../assets/icon.png");
 
@@ -38,10 +38,12 @@ export default function SignupScreen({ navigation }: any) {
     setPasswordError(value.length >= 8 ? "" : "Password must be at least 8 characters");
   };
 
+  const { signInWithProvider } = useOAuth();
+
   const socialProviders = [
-    { key: "google", label: "Continue with Google", Icon: GoogleIcon, onPress: () => Alert.alert("Google Signup", "Coming Soon") },
-    { key: "apple", label: "Continue with Apple", Icon: AppleIcon, onPress: () => Alert.alert("Apple Signup", "Coming Soon") },
-    { key: "github", label: "Continue with GitHub", Icon: GitHubIcon, onPress: () => Alert.alert("GitHub Signup", "Coming Soon") },
+    { key: "google", label: "Continue with Google", Icon: GoogleIcon, onPress: () => signInWithProvider("google") },
+    { key: "apple", label: "Continue with Apple", Icon: AppleIcon, onPress: () => signInWithProvider("apple") },
+    { key: "github", label: "Continue with GitHub", Icon: GitHubIcon, onPress: () => signInWithProvider("github") },
   ];
 
   const [loading, setLoading] = useState(false);

@@ -41,8 +41,8 @@ export default function ProfileScreen() {
   };
 
   const logout = async () => {
+    await AsyncStorage.removeItem("onboarding_complete");
     await supabase.auth.signOut();
-    // onAuthStateChange in App.tsx will automatically navigate back to AuthNavigator
   };
 
   const bmi = height && weight ? (Number(weight) / Math.pow(Number(height) / 100, 2)).toFixed(1) : "—";

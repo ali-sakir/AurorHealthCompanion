@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "pockethealth",
     "name": "PocketHealth",
     "slug": "AuroraHealthCompanion",
     "version": "1.0.0",
@@ -31,6 +32,9 @@
       "eas": {
         "projectId": "872dfab9-a2ae-4a5a-ae70-ea0e4938680c"
       }
-    }
+    },
+    "plugins": [
+      "expo-web-browser"
+    ]
   }
 }

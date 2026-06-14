@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from '../services/supabase';
+import { useOAuth } from '../services/useOAuth';
 import { LinearGradient } from "expo-linear-gradient";
 import GoogleIcon from "../../assets/images/GoogleLight.svg";
 import AppleIcon from "../../assets/images/AppleLight.svg";
@@ -65,24 +66,26 @@ export default function LoginScreen({ navigation }: any) {
     }
   };
 
+  const { signInWithProvider } = useOAuth();
+
   const socialProviders = [
     {
       key: "google",
       label: "Continue with Google",
       Icon: GoogleIcon,
-      onPress: () => Alert.alert("Google Login", "Coming Soon"),
+      onPress: () => signInWithProvider("google"),
     },
     {
       key: "apple",
       label: "Continue with Apple",
       Icon: AppleIcon,
-      onPress: () => Alert.alert("Apple Login", "Coming Soon"),
+      onPress: () => signInWithProvider("apple"),
     },
     {
       key: "github",
       label: "Continue with GitHub",
       Icon: GitHubIcon,
-      onPress: () => Alert.alert("GitHub Login", "Coming Soon"),
+      onPress: () => signInWithProvider("github"),
     },
   ];
 

@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import { supabase } from "../services/supabase";
 import { Colors, Radius, Shadow } from "../constants/theme";
 
 export default function ProfileScreen() {
@@ -40,8 +41,8 @@ export default function ProfileScreen() {
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem("token");
-    Alert.alert("Logged Out", "Restart the app to log in again.");
+    await supabase.auth.signOut();
+    // onAuthStateChange in App.tsx will automatically navigate back to AuthNavigator
   };
 
   const bmi = height && weight ? (Number(weight) / Math.pow(Number(height) / 100, 2)).toFixed(1) : "—";

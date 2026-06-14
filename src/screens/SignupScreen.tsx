@@ -16,6 +16,8 @@ import GoogleIcon from "../../assets/images/GoogleLight.svg";
 import AppleIcon from "../../assets/images/AppleLight.svg";
 import GitHubIcon from "../../assets/images/GitHubLight.svg";
 import { Colors, Radius, Shadow } from "../constants/theme";
+import { supabase } from '../services/supabase';
+//import { register } from "../services/api";
 
 const logo = require("../../assets/icon.png");
 
@@ -42,8 +44,51 @@ export default function SignupScreen({ navigation }: any) {
     { key: "github", label: "Continue with GitHub", Icon: GitHubIcon, onPress: () => Alert.alert("GitHub Signup", "Coming Soon") },
   ];
 
-  const handleSignup = () => Alert.alert("Create Account", "Backend integration coming next");
+  const [loading, setLoading] = useState(false);
 
+  const handleSignup = async () => {
+    if (!fullName.trim()) {
+      Alert.alert("Error", "Please enter your full name.");
+      return;
+    }
+    if (emailError || !email) {
+      Alert.alert("Error", "Please enter a valid email address.");
+      return;
+    }
+    if (passwordError || !password) {
+      Alert.alert("Error", "Password must be at least 8 characters.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const { data, error } = await supabase.auth.signUp({ email, password });
+
+      if (error) {
+        Alert.alert("Signup Failed", error.message);
+        return;
+      }
+
+      if (data.user) {
+        await supabase.from("users").insert({
+          id: data.user.id,
+          name: fullName,
+          email,
+        });
+      }
+
+      Alert.alert(
+        "Account Created!",
+        "Please check your email to confirm your account, then log in.",
+        [{ text: "Go to Login", onPress: () => navigation.navigate("Login") }]
+      );
+    } catch (err: any) {
+      Alert.alert("Error", err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
@@ -89,9 +134,9 @@ export default function SignupScreen({ navigation }: any) {
           </View>
           {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
-          <TouchableOpacity onPress={handleSignup} activeOpacity={0.85} style={{ marginTop: 10, marginBottom: 28 }}>
+          <TouchableOpacity onPress={handleSignup} activeOpacity={0.85} disabled={loading} style={{ marginTop: 10, marginBottom: 28 }}>
             <LinearGradient colors={Colors.gradientButton} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.primaryButton}>
-              <Text style={styles.primaryButtonText}>Create Account</Text>
+              <Text style={styles.primaryButtonText}>{loading ? "Creating..." : "Create Account"}</Text>
             </LinearGradient>
           </TouchableOpacity>
 

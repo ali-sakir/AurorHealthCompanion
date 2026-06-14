@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { supabase } from '../services/supabase';
 import { LinearGradient } from "expo-linear-gradient";
 import GoogleIcon from "../../assets/images/GoogleLight.svg";
 import AppleIcon from "../../assets/images/AppleLight.svg";
@@ -38,9 +38,31 @@ export default function LoginScreen({ navigation }: any) {
     setPasswordError(value.length >= 8 ? "" : "Password must be at least 8 characters");
   };
 
+  const [loading, setLoading] = useState(false);
+
   const handleLogin = async () => {
-    await AsyncStorage.setItem("token", "dummy-token");
-    Alert.alert("Login", "Backend integration coming next");
+    if (emailError || !email) {
+      Alert.alert("Error", "Please enter a valid email address.");
+      return;
+    }
+    if (passwordError || !password) {
+      Alert.alert("Error", "Please enter your password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        Alert.alert("Login Failed", error.message);
+      }
+      // On success, Supabase persists the session via AsyncStorage.
+      // App.tsx listens to onAuthStateChange and will navigate automatically.
+    } catch (err: any) {
+      Alert.alert("Error", err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const socialProviders = [
@@ -149,14 +171,14 @@ export default function LoginScreen({ navigation }: any) {
           </TouchableOpacity>
 
           {/* Login Button */}
-          <TouchableOpacity onPress={handleLogin} activeOpacity={0.85}>
+          <TouchableOpacity onPress={handleLogin} activeOpacity={0.85} disabled={loading}>
             <LinearGradient
               colors={["#2ebba8", "#5b8dee", "#a855f7"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.loginButton}
             >
-              <Text style={styles.loginText}>Log In</Text>
+              <Text style={styles.loginText}>{loading ? "Signing in..." : "Log In"}</Text>
             </LinearGradient>
           </TouchableOpacity>
 
